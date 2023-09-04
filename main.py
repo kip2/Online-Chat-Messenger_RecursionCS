@@ -5,7 +5,7 @@ class ChatRoom:
     def __init__(self, title, max_member):
         self.title = title
         self.max_member = max_member
-        self.room_server_create()
+        #self.room_server_create()
 
     def room_server_create():
         """
@@ -40,5 +40,6 @@ def prologue():
 
 if __name__ == "__main__":
     prologue()
+    print(chat_rooms_dict)
 
     
