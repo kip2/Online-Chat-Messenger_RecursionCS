@@ -1,7 +1,7 @@
 import sys
 
 # チャットルームの辞書配列
-chat_rooms_dict= {}
+chat_rooms= {}
 
 class ChatClient:
     """
@@ -10,7 +10,7 @@ class ChatClient:
             address:    クライアントのアドレス
             port:       クライアントのポート番号
     """
-    def __init__(self, name, address, port):
+    def __init__(self, name :str, address: str, port: str):
         self.name = name
         self.address = address
         self.port = port
@@ -25,10 +25,18 @@ class ChatRoom:
             address:     アドレス
             port:        ポート番号
     """
-    def __init__(self, title, max_member):
+    client_list = {}
+    
+    def __init__(self, title: str, max_member: int):
         self.title = title
         self.max_member = max_member
         #self.room_server_create()
+
+    def enter_chat_room(self, chat_client: ChatClient):
+        """
+            roomに入室したクライエントを登録する
+        """
+        self.client_list[chat_client.name] = chat_client
 
     def room_server_create():
         """
@@ -36,14 +44,14 @@ class ChatRoom:
         """
         pass
 
-def chat_room_create(room_name, max_member):
+def chat_room_create(room_name: str, max_member: int):
     """
         chat_roomを作成し、辞書に登録する
     """
     chat_room = ChatRoom(room_name, max_member)
 
     # チャットルーム辞書にチャットルームを追加
-    chat_rooms_dict[room_name] = chat_room
+    chat_rooms[room_name] = chat_room
     return chat_room
 
 def create_new_chat_room():
@@ -68,8 +76,30 @@ def prologue():
     chat_room = create_new_chat_room()
     return 
 
+def test():
+    rooms = {"room1":5,
+            "room2":3,
+            "room3":6,
+            }
+
+# roomを一括で作成
+    for key, value in rooms.items():
+        chat_room_create(key, value)
+    
+    # ChatRoomの作成のテスト
+    assert chat_rooms["room1"].title == "room1"
+    assert chat_rooms["room1"].max_member == 5
+
+    # ChatClientのテスト
+    chat_client = ChatClient("adam", "0.0.0.0", "8080")
+    chat_rooms["room1"].enter_chat_room(chat_client)
+    assert chat_rooms["room1"].client_list["adam"] == chat_client
+
 if __name__ == "__main__":
-    prologue()
-    print(chat_rooms_dict)
+    #prologue()
+
+    test()
+
+
 
     
