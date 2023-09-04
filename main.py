@@ -1,3 +1,5 @@
+import sys
+
 # チャットルームの辞書配列
 chat_rooms_dict= {}
 
@@ -22,11 +24,11 @@ def chat_room_create(room_name, max_member):
     # チャットルーム辞書にチャットルームを追加
     chat_rooms_dict[room_name] = chat_room
     return
-    
-def prologue():
-    print("Welcome Online chat Messenger!")
-    print("Make your chat room!")
 
+def create_new_chat_room():
+    """
+        新しいチャットルームを作成する関数
+    """
     while True:
         room_name = input("Room Name? > ")
         if not room_name == ""  and not room_name.isspace(): break
@@ -34,9 +36,20 @@ def prologue():
     while True:
         max_member = input("maximum number? > ")
         if max_member.isdecimal(): break
-
     chat_room_create(room_name, max_member)
+    return
+    
+def prologue():
+    print("Welcome Online chat Messenger!")
+    print("Make your chat room!")
+
+    # 最初なので、ルームを作成
+    create_new_chat_room()
     return 
+
+def test(args1, args2):
+    pass
+    
 
 if __name__ == "__main__":
     prologue()
