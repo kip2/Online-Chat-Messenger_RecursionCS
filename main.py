@@ -3,7 +3,28 @@ import sys
 # チャットルームの辞書配列
 chat_rooms_dict= {}
 
+class ChatClient:
+    """
+        field:
+            name:       クライアントのユーザーネーム
+            address:    クライアントのアドレス
+            port:       クライアントのポート番号
+    """
+    def __init__(self, name, address, port):
+        self.name = name
+        self.address = address
+        self.port = port
+
 class ChatRoom:
+    """
+        field:
+            title:       チャットルームの名前
+            max_member:  チャットルームの最大参加人数
+            // todo
+            // サーバークリエイト時にランダムな値を生成する
+            address:     アドレス
+            port:        ポート番号
+    """
     def __init__(self, title, max_member):
         self.title = title
         self.max_member = max_member
@@ -23,7 +44,7 @@ def chat_room_create(room_name, max_member):
 
     # チャットルーム辞書にチャットルームを追加
     chat_rooms_dict[room_name] = chat_room
-    return
+    return chat_room
 
 def create_new_chat_room():
     """
@@ -44,12 +65,8 @@ def prologue():
     print("Make your chat room!")
 
     # 最初なので、ルームを作成
-    create_new_chat_room()
+    chat_room = create_new_chat_room()
     return 
-
-def test(args1, args2):
-    pass
-    
 
 if __name__ == "__main__":
     prologue()
