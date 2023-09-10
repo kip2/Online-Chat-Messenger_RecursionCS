@@ -1,5 +1,6 @@
 import random
 
+# main関数の方で、管理し直す
 port_number_arr = []
 
 def create_port_number() :
@@ -16,6 +17,7 @@ def create_port_number() :
     r = random.randint(rangeMin, rangeMax)
 
     while (r in port_number_arr):
+        # todo 回数制限しないと無限ループに陥るバグあり
         r = random.randint(rangeMin, rangeMax)
         #print("被った！", end="")
 
