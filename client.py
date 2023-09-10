@@ -61,5 +61,27 @@ def start_client():
         print('closing socket')
         sock.close()
 
+def test_start_client():
+    ip = '0.0.0.0'
+    port = 9001
+    server = (ip, port)
+
+    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    soc.connect(server)
+
+    soc.send(" ".encode("utf-8"))
+
+    line = ''
+    while line != 'bye':
+        line = input('>>> ')
+        soc.send(line.encode("UTF-8"))
+        data = soc.recv(4096).decode()
+        print(str(data))
+
+    soc.close()
+    print("close Client.")
+
+
 if __name__ == "__main__":
-    start_client()
+    test_start_client()
+    # start_client()

@@ -65,5 +65,68 @@ def start_server():
             connection.close()
             break
 
+def test_start_server():
+    host = '0.0.0.0'
+    port = 9001
+
+    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    soc.bind((host, port))
+    soc.listen(1)
+    print(f"serverが{host}:{port}で待機中...")
+
+    try:
+        connection, address = soc.accept()
+        print("接続したクライアント情報:" + str(address))
+
+        # addressを後で使う
+        # chatRoomのclient情報に入れよう
+
+
+        recvline = ""
+        sendline = ""
+        while True:
+            # ChatRoomの名前の入力を受け付ける
+            sendline = "OnlineChatMessengerへようこそ!\n"
+            send_server_message(connection, sendline)
+            sendline = "ChatRoomを作成します。\n"
+            send_server_message(connection, sendline)
+            sendline = "ChatRoomの名前を入力してください。\n"
+            send_server_message(connection, sendline)
+
+            # クライアントから受け取った文字列
+            recvline = connection.recv(4096).decode()
+
+            if recvline == "bye":
+                break
+            elif not recvline.isspace():
+                break
+            sendline = "ChatRoomの名前を入力してください。"
+            send_server_message(connection, sendline)
+
+        recvline = ""
+        while True:
+            # クライアントから受け取った文字列
+            recvline = connection.recv(4096).decode()
+
+            if recvline == "bye":
+                break
+            try:
+                sendline = recvline.encode('utf-8')
+                connection.send(sendline)
+            finally:
+                print('クライアントで入力された文字=' + str(recvline))
+    finally:
+        connection.close()
+        soc.close()
+        print("サーバー側の終了")
+
+def send_server_message(connection, message):
+    """
+        connectionに、messageをutf-8にencodeして送るだけの関数
+    """
+    connection.send(message.encode("utf-8"))
+            
+
 if __name__ == "__main__":
-    start_server()
+    test_start_server()
+    # start_server()
