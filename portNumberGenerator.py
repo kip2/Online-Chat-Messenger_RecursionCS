@@ -6,9 +6,10 @@ port_number_arr = []
 def create_port_number() :
     """
         port番号ランダム生成機
+
+        以下の範囲で番号を生成する
+        1024~65535
     """
-    # 以下の範囲で番号を生成する
-    # 1024~65535
     #rangeMin = 1024
     #rangeMax = 65535
     rangeMin = 1024

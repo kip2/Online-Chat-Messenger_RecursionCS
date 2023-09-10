@@ -11,6 +11,7 @@ class ChatClient:
             port:       クライアントのポート番号
     """
     def __init__(self, name :str, address: str, port: str):
+        # validationは不要
         self.name = name
         self.address = address
         self.port = port
@@ -28,9 +29,17 @@ class ChatRoom:
     client_list = {}
     
     def __init__(self, title: str, max_member: int):
+        # validationがいる
         self.title = title
         self.max_member = max_member
         #self.room_server_create()
+
+    def create_client_and_enter_chat_room(self, name, address, port):
+        """
+            クライエント作成と入室を同時にする
+        """
+        chat_client = ChatClient(name, address, port)
+        self.enter_chat_room(chat_client)
 
     def enter_chat_room(self, chat_client: ChatClient):
         """
@@ -76,6 +85,10 @@ def prologue():
     chat_room = create_new_chat_room()
     return 
 
+"""
+    test cases
+"""
+
 def test():
     rooms = {"room1":5,
             "room2":3,
@@ -95,10 +108,63 @@ def test():
     chat_rooms["room1"].enter_chat_room(chat_client)
     assert chat_rooms["room1"].client_list["adam"] == chat_client
 
+def test_new_chat_client():
+    clients = []
+
+    clients.append(ChatClient("taro1", "192.168.0.0", "12345"))
+    clients.append(ChatClient("taro2", "192.168.0.1", "12346"))
+    clients.append(ChatClient("taro3", "192.168.0.2", "12347"))
+    test_print_chat_client(clients)
+    
+    return 
+
+def test_print_chat_client(clients: ChatClient):
+    for c in clients:
+        print(c.name)
+        print(c.address)
+        print(c.port)
+    return 
+
+def intaractive_create_chat_room():
+    # title
+    while True:
+        title = input("Enter new chat room name!: ")
+        # validation
+        if (not title in chat_rooms): break
+        print("It has already been registered.")
+        
+    # max_member
+    while True:
+        max_member = input("What is the maximum number of people in a chat room?: ")
+        # validation
+        if (max_member.isdigit()): break
+        print("Please enter a number.")
+
+    """
+    test case
+    """
+    cr = chat_room_create(title, max_member)
+    test_print_chat_room(cr)
+    return 
+
+def test_print_chat_room(chatroom: ChatRoom):
+    """ 
+        test用print出力
+    """ 
+    cr = chatroom 
+    print(cr.title)
+    print(cr.max_member)
+    
+
 if __name__ == "__main__":
     #prologue()
 
-    test()
+    #test()
+    # test_new_chat_client()
+    # intaractive_create_chat_room()
+    pass
+
+
 
 
 
