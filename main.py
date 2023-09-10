@@ -1,4 +1,6 @@
 import sys
+from client import *
+from server import *
 
 # チャットルームの辞書配列
 chat_rooms= {}
@@ -162,10 +164,6 @@ if __name__ == "__main__":
     #test()
     # test_new_chat_client()
     # intaractive_create_chat_room()
+    # start_client()
+    start_server()
     pass
-
-
-
-
-
-    

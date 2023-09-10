@@ -5,7 +5,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = "0.0.0.0"
 server_port = 9001
 
-def create_server():
+def start_server():
 
     dpath = "temp"
     # tempディレクトリがなければ作成する
@@ -66,4 +66,4 @@ def create_server():
             break
 
 if __name__ == "__main__":
-    create_server()
+    start_server()
