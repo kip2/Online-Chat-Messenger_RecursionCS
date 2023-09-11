@@ -1,9 +1,13 @@
 import sys
 from client import *
 from server import *
+from typing import Type
 
 # チャットルームの辞書配列
 chat_rooms= {}
+
+# チャットメッセージ文字列整形用
+ljust_max = 0
 
 class ChatClient:
     """
@@ -14,9 +18,9 @@ class ChatClient:
     """
     def __init__(self, name :str, address: str, port: str):
         # validationは不要
-        self.name = name
-        self.address = address
-        self.port = port
+        self.name: str = name
+        self.address: str = address
+        self.port: str = port
 
 class ChatRoom:
     """
@@ -32,8 +36,8 @@ class ChatRoom:
     
     def __init__(self, title: str, max_member: int):
         # validationがいる
-        self.title = title
-        self.max_member = max_member
+        self.title: str = title
+        self.max_member: int = max_member
         #self.room_server_create()
 
     def create_client_and_enter_chat_room(self, name, address, port):
@@ -116,9 +120,10 @@ def test_new_chat_client():
     clients.append(ChatClient("taro1", "192.168.0.0", "12345"))
     clients.append(ChatClient("taro2", "192.168.0.1", "12346"))
     clients.append(ChatClient("taro3", "192.168.0.2", "12347"))
-    test_print_chat_client(clients)
+    clients.append(ChatClient("jugemujugemugokounosurikire", "192.168.0.2", "12347"))
+    # test_print_chat_client(clients)
     
-    return 
+    return clients
 
 def test_print_chat_client(clients: ChatClient):
     for c in clients:
@@ -156,7 +161,33 @@ def test_print_chat_room(chatroom: ChatRoom):
     cr = chatroom 
     print(cr.title)
     print(cr.max_member)
-    
+
+def format_chat_message(clients: list[ChatClient]) -> int:
+    """
+        新しいクライアントがnewされた時に実行する
+        チャットメッセージの名前の最大文字数から、メッセージとの適切な感覚を調整
+    """
+    space = 3
+    max = 0
+    for client in clients:
+        if len(client.name) >= max: max = len(client.name)
+    return max + space
+
+
+def chat_message(name: str, message: str, name_ljust: int) -> str:
+    """
+        chat messageをprintする
+    """
+    print(name.ljust(name_ljust) + ":" + message)
+    return 
+
+def test_chat_message():
+    clients = test_new_chat_client()
+    ljust_max = format_chat_message(clients)
+    chat_message(clients[0].name, "test message!", ljust_max)
+    chat_message(clients[1].name, "Hello, World!", ljust_max)
+    chat_message(clients[2].name, "Hello", ljust_max)
+    chat_message(clients[3].name, "Hello", ljust_max)
 
 if __name__ == "__main__":
     #prologue()
@@ -165,5 +196,9 @@ if __name__ == "__main__":
     # test_new_chat_client()
     # intaractive_create_chat_room()
     # start_client()
-    start_server()
+    # start_server()
+
+    # test_chat_message()
+    
+    
     pass
