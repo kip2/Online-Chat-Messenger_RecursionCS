@@ -1,14 +1,26 @@
 import socket
+import sys
 import threading
 
-IPADDR = "127.0.0.1"
-PORT = 49152
+# const request
+# header用定数
+CREATE_ROOM = 0
+REQUEST_ROOM_LIST = 1
+REQUEST_LOG_FILE = 2
+ENTER_ROOM = 3
+SEND_MESSAGE = 4
 
-sock = socket.socket(socket.AF_INET)
-sock.connect((IPADDR, PORT))
+# IP address
+server_address = "127.0.0.1"
+# Port
+server_port = 9001
 
-def protocol_header(filename_length, json_length, data_length):
-    return filename_length.to_bytes(1, "big") + json_length.to_bytes(3,"big") + data_length.to_bytes(4,"big")
+
+# def protocol_header(filename_length, json_length, data_length):
+#     return filename_length.to_bytes(1, "big") + json_length.to_bytes(3,"big") + data_length.to_bytes(4,"big")
+
+def protocol_header(client_request, message_length,data_length):
+    return client_request.to_bytes(1, "big") + message_length.to_bytes(3,"big") + data_length.to_bytes(4, "big")
 
 # データ受信関数
 def recv_data(sock):
@@ -23,23 +35,40 @@ def recv_data(sock):
         except OSError as e:
             if e.errno == 9:
                 break
-    # sock.shutdown(socket.SHUT_RDWR)
     sock.close()
 
-# データ受信をサブスレッドで実行
-thread = threading.Thread(target=recv_data, args=(sock,))
-thread.start()
+def start_client():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.connect((server_address, server_port))
+    except socket.error as err:
+        print(err)
+        sys.exit(1)
 
-# データ入力ループ
-while True:
-    data = input("> ")
-    if data == "exit":
-        break
-    else:
-        try:
-            sock.send(data.encode("utf-8"))
-        except ConnectionResetError:
+    # データ受信をサブスレッドで実行
+    thread = threading.Thread(target=recv_data, args=(sock,))
+    thread.start()
+    header = protocol_header(CREATE_ROOM, 0, 0)
+
+    sock.send(header)
+
+    # print("room create!")
+    # print("Enter Room Name > ")
+    # print("Enter the maximum room capacity > ")
+
+    # データ入力ループ
+    while True:
+        data = input("> ")
+        if data == "exit":
             break
+        else:
+            try:
+                sock.send(data.encode("utf-8"))
+            except ConnectionResetError:
+                break
+    sock.shutdown(socket.SHUT_RD)
+    sock.close()
+    
 
-sock.shutdown(socket.SHUT_RD)
-sock.close()
+if __name__ == "__main__":
+    start_client()
