@@ -6,8 +6,11 @@ PORT_RANEG_MAX = 10000
 
 HOST = "127.0.0.1"
 
-# openなら使用しているので、closeのportを使用する
-def is_port_open(host, port):
+# 注意：openなら使用しているので、closeのportを使用する
+def is_port_open(host:str, port: int) -> bool:
+    """
+        portがopenであるかどうかをbooleanで返す関数
+    """
     try:
         # ソケットを作成し、指定したポートに接続を試みる
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
