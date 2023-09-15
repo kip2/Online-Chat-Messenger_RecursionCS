@@ -1,13 +1,13 @@
 import sys
 from client import *
 from server import *
-from typing import Type
 
 # チャットルームの辞書配列
 chat_rooms= {}
 
 # チャットメッセージ文字列整形用
 ljust_max = 0
+
 
 class ChatClient:
     """
@@ -32,7 +32,10 @@ class ChatRoom:
             address:     アドレス
             port:        ポート番号
     """
+    # client HashMap
     client_list = {}
+    # チャットメッセージ文字列整形用
+    ljust_max = 0
     
     def __init__(self, title: str, max_member: int):
         # validationがいる
@@ -83,6 +86,9 @@ def create_new_chat_room():
     chat_room_create(room_name, max_member)
     return
     
+
+if __name__ == "__main__":
+    pass
 def prologue():
     print("Welcome Online chat Messenger!")
     print("Make your chat room!")

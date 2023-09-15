@@ -2,6 +2,7 @@ import socket
 import os
 from port_scan import *
 import threading
+import ndjson
 
 # const request
 # header用定数
@@ -84,8 +85,41 @@ def startup_udp_server(server_address:str = SERVER_ADDRESS, server_port:str = No
 def create_room():
     clients[0][0].send(b"CREATE ROOM!")
 
+def broadcast_client(sock, addr):
+    # todo : まだ　clientへのbroadcat関数
+    while True:
+        try:
+            data = sock.recv(4096)
+            if data == b"":
+                break
+            print("$ say client:{}".format(addr))
+            # 受信データを全クライアントに送信
+            for client in clients:
+                client[0].send(data)
+
+        except ConnectionResetError:
+            break
+        except OSError as e:
+            if e.errno == 57:
+                break
+    # クライアントリストから削除
+    clients.remove((sock,addr))
+    print("- close client:{}".format(addr))
+
+    sock.shutdown(socket.SHUT_WR)
+    sock.close()
+
 def send_room_list():
     clients[0][0].send(b"ROOM LIST!!!")
+    """
+        roomlistのJSONファイルのやりとりがいる
+        JSONファイルやりとり用のソケット通信を開いて、そこで通信をしたい
+        JSONファイルをやりとりするためのサーバーを立てて、そこでやりとりするように誘導する
+        つまり、
+        - serverでserverを立てる
+        - clientでそこに接続する
+            client側で、TCPであるかUDPであるかを識別するためのヘッダーbitがいる
+    """
     
 def send_log_file():
     clients[0][0].send(b"LOG FILE!!!")
@@ -151,6 +185,6 @@ def start_server():
 if __name__ == "__main__":
     # start_server()
     # sock, address, port = startup_tcp_server()
-    sock, address, port = startup_tcp_server()
+    sock, address, port = startup_udp_server()
     print(sock, address, port)
     sock.close()
