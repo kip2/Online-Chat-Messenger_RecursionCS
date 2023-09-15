@@ -36,7 +36,16 @@ if __name__ == "__main__":
     host = "127.0.0.1"
     port = 9001
 
-    print(available_port())
+    port = available_port()
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind((host, port))
+        sock.listen()
+        
+        connection, client_address = sock.accept()
+
+
+
+    # print(available_port())
 
     # for i in range(9001, 10000):
     #     print("test", i)
