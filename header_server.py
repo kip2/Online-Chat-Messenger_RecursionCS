@@ -12,12 +12,18 @@ ENTER_ROOM = 3
 SEND_MESSAGE = 4
 EXIT_MESSAGE = 5
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-SERVER_ADDRESS = "127.0.0.1"
-SERVER_PORT = 9001
+# network socket type
+NETWORK_SOCKET_TYPE = socket.AF_INET
 
 # client list
 clients = []
+
+sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_STREAM)
+SERVER_ADDRESS = "127.0.0.1"
+SERVER_PORT = 9001
+
+# # UDP通信Descriptor用ファイル名のprefix
+# UDP_FILE_DIRECTORY = "/udp/"
 
 def startup_tcp_server(server_address:str = SERVER_ADDRESS, server_port:str = None) -> tuple:
     """
@@ -26,25 +32,54 @@ def startup_tcp_server(server_address:str = SERVER_ADDRESS, server_port:str = No
     """
 
     # portが指定されていなければ自動で生成
-    if server_port == None: server_port = available_port(server_address)
+    if server_port == None: 
+        server_port = available_port(server_address)
 
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_STREAM) 
         sock.bind((server_address, server_port))
         sock.listen(1)
-        sock.close()
         return (sock, server_address, server_port)
     except (socket.timeout, ConnectionRefusedError):
         return
 
-def startup_udp_room_server():
-    pass
+def startup_udp_server(server_address:str = SERVER_ADDRESS, server_port:str = None) -> tuple:
+    """
+        UDPサーバーを立てる関数
+        connect用のsocketと、(IP_address, PORT)のタプルを返す
+    """
 
-def create_udp_descriptor_name(room_name:str) -> str:
-    """
-        udp通信待ち受け用descriptorの名前を作る
-    """
-    return "udp_"+room_name+"_file"
+    # portが指定されていなければ自動で生成
+    if server_port == None:
+        server_port = available_port(server_address)
+
+    try:
+        sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_DGRAM) 
+        sock.bind((server_address, server_port))
+        return (sock, server_address, server_port)
+    except (socket.timeout, ConnectionRefusedError):
+        return
+
+# def startup_udp_room_server(room_name:str):
+#     """
+#         UDPによるRoomサーバーを立てる関数
+#         connect用socketと、(IP_address, PORT)のタプルを返す
+#     """
+
+#     sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_DGRAM)
+#     server_address = create_udp_descriptor_name(room_name)
+#     # try:
+#     #     os.unlink(server_address)
+#     # except FileNotFoundError:
+#     #     pass
+#     sock.bind(server_address)
+#     return (sock, server_address) 
+
+# def create_udp_descriptor_name(room_name:str) -> str:
+#     """
+#         udp通信待ち受け用descriptorの名前を作る
+#     """
+#     return UDP_FILE_DIRECTORY + "udp_"+room_name+"_file"
 
 def create_room():
     clients[0][0].send(b"CREATE ROOM!")
