@@ -4,37 +4,30 @@ from port_scan import *
 import threading
 import ndjson
 
-# const request
-# header用定数
-CREATE_ROOM = 0
-REQUEST_ROOM_LIST = 1
-REQUEST_LOG_FILE = 2
-ENTER_ROOM = 3
-SEND_MESSAGE = 4
-EXIT_MESSAGE = 5
+# 定数読み込み用
+import _header
+import _address_config
 
 # network socket type
-NETWORK_SOCKET_TYPE = socket.AF_INET
+NETWORK_SOCKET_TYPE = _address_config.NETWORK_SOCKET_TYPE 
+
+# server address
+SERVER_ADDRESS = _address_config.SERVER_ADDRESS 
+# server port
+SERVER_PORT = _address_config.SERVER_PORT
 
 # client list
 clients = []
 
-sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_STREAM)
-SERVER_ADDRESS = "127.0.0.1"
-SERVER_PORT = 9001
 
-# # UDP通信Descriptor用ファイル名のprefix
-# UDP_FILE_DIRECTORY = "/udp/"
-
-def startup_tcp_server(server_address:str = SERVER_ADDRESS, server_port:str = None) -> tuple:
+def startup_tcp_server(server_address:str = SERVER_ADDRESS, server_port:int = None) -> tuple:
     """
         TCPサーバーを立てる関数
         connect用のsocketと、(IP_address, PORT)のタプルを返す
     """
-
     # portが指定されていなければ自動で生成
     if server_port == None: 
-        server_port = available_port(server_address)
+        server_port = available_tcp_port(server_address)
 
     try:
         sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_STREAM) 
@@ -49,10 +42,9 @@ def startup_udp_server(server_address:str = SERVER_ADDRESS, server_port:str = No
         UDPサーバーを立てる関数
         connect用のsocketと、(IP_address, PORT)のタプルを返す
     """
-
     # portが指定されていなければ自動で生成
     if server_port == None:
-        server_port = available_port(server_address)
+        server_port = available_udp_port(server_address)
 
     try:
         sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_DGRAM) 
@@ -61,29 +53,12 @@ def startup_udp_server(server_address:str = SERVER_ADDRESS, server_port:str = No
     except (socket.timeout, ConnectionRefusedError):
         return
 
-# def startup_udp_room_server(room_name:str):
-#     """
-#         UDPによるRoomサーバーを立てる関数
-#         connect用socketと、(IP_address, PORT)のタプルを返す
-#     """
-
-#     sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_DGRAM)
-#     server_address = create_udp_descriptor_name(room_name)
-#     # try:
-#     #     os.unlink(server_address)
-#     # except FileNotFoundError:
-#     #     pass
-#     sock.bind(server_address)
-#     return (sock, server_address) 
-
-# def create_udp_descriptor_name(room_name:str) -> str:
-#     """
-#         udp通信待ち受け用descriptorの名前を作る
-#     """
-#     return UDP_FILE_DIRECTORY + "udp_"+room_name+"_file"
-
 def create_room():
-    clients[0][0].send(b"CREATE ROOM!")
+    clients[0][0].send(b"CREATE ROOM!\n")
+    clients[0][0].send(b"NEXT MESSAGE!")
+    # connection.close()
+    pass
+    # todo clientsの数字指定をもうちょっとわかりやすくしたい
 
 def broadcast_client(sock, addr):
     # todo : まだ　clientへのbroadcat関数
@@ -130,25 +105,30 @@ def allow_enter():
 def receive_message():
     clients[0][0].send(b"RECEIVED MESSAGE!!!")
 
+def send_client_exit_message():
+    clients[0][0].send(b"BYE client!!!")
+
 def send_exit_message():
     clients[0][0].send(b"BYE!!!")
 
-def start_server():
+def main_tcp():
 
-    print("Starting up on {} port {}".format(SERVER_ADDRESS, SERVER_PORT))
+    print("Starting up tcp on {} port {}".format(SERVER_ADDRESS, SERVER_PORT))
 
-    sock.bind((SERVER_ADDRESS, SERVER_PORT))
-    sock.listen(5)
+    sock, addr, port = startup_tcp_server(SERVER_ADDRESS, SERVER_PORT)
+    print(f"socket = {sock}, address = {addr}, port = {port}")
 
     try:
         while True:
             try:
+                print("ここから!")
                 connection, client_address = sock.accept()
                 clients.append((connection, client_address))
                 print("connection from", client_address)
                 # headerの読み取り
                 # header4バイト
                 # clientが何を求めているかを受け取る
+                print("leached!")
                 header = connection.recv(8)
                 # headerからの抽出
                 client_request = int.from_bytes(header[:1], "big")
@@ -158,33 +138,81 @@ def start_server():
                 print('Received header from client. Byte lengths: Client request {}, message length {}, Data Length {}'.format(client_request,message_length,data_length))
 
                 # headerの種類によって動作を変える
-                if client_request == CREATE_ROOM:
+                if client_request == _header.CREATE_ROOM:
                     create_room()
-                elif client_request == REQUEST_ROOM_LIST:
+                elif client_request == _header.REQUEST_ROOM_LIST:
                     send_room_list()
-                elif client_request == REQUEST_LOG_FILE:
+                elif client_request == _header.REQUEST_LOG_FILE:
                     send_log_file()
-                elif client_request == ENTER_ROOM:
+                elif client_request == _header.ENTER_ROOM:
                     allow_enter()
-                elif client_request == SEND_MESSAGE:
+                elif client_request == _header.SEND_MESSAGE:
                     receive_message()
-                elif client_request == EXIT_MESSAGE:
+                elif client_request == _header.CLIENT_EXIT_MESSAGE:
+                    send_client_exit_message()
+                elif client_request == _header.EXIT_MESSAGE:
                     send_exit_message()
+                    break
             except Exception as e:
                 print("Error: " + str(e))
                 break
-            # todo 勝手にfinallyに入ってconnectを抜けている
             # finally:
-            #     print("Closing current connection")
             #     connection.close()
-                # break
     finally:
         print("Closing current connection")
-        connection.close()
+        sock.close()
+
+def main_udp():
+
+    print("Starting up udp on {} port {}".format(SERVER_ADDRESS, SERVER_PORT))
+
+    sock, addr, port = startup_udp_server(SERVER_ADDRESS, SERVER_PORT)
+    print(f"socket = {sock}, address = {addr}, port = {port}")
+
+    try:
+        while True:
+            try:
+                data, client_address = sock.recvfrom(4096)
+                print("connection from", client_address)
+                # headerの読み取り
+                # header4バイト
+                # clientが何を求めているかを受け取る
+                header = data
+                # headerからの抽出
+                client_request = int.from_bytes(header[:1], "big")
+                message_length = int.from_bytes(header[1:3], "big")
+                data_length = int.from_bytes(header[4:8], "big")
+
+                print('Received header from client. Byte lengths: Client request {}, message length {}, Data Length {}'.format(client_request,message_length,data_length))
+
+                # headerの種類によって動作を変える
+                if client_request == _header.CREATE_ROOM:
+                    # create_room()
+                    sock.sendto(data, client_address)
+                elif client_request == _header.REQUEST_ROOM_LIST:
+                    send_room_list()
+                elif client_request == _header.REQUEST_LOG_FILE:
+                    send_log_file()
+                elif client_request == _header.ENTER_ROOM:
+                    allow_enter()
+                elif client_request == _header.SEND_MESSAGE:
+                    sock.sendto(data, client_address)
+                    # receive_message()
+                elif client_request == _header.CLIENT_EXIT_MESSAGE:
+                    send_client_exit_message()
+                elif client_request == _header.EXIT_MESSAGE:
+                    sock.sendto(data, client_address)
+                    # send_exit_message()
+                    break
+            except Exception as e:
+                print("Error: " + str(e))
+                break
+    finally:
+        print("Closing current connection")
+        sock.close()
 
 if __name__ == "__main__":
-    # start_server()
-    # sock, address, port = startup_tcp_server()
-    sock, address, port = startup_udp_server()
-    print(sock, address, port)
-    sock.close()
+
+    main_tcp()
+    
+    # main_udp()
