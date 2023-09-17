@@ -20,12 +20,11 @@ SERVER_PORT = _address_config.SERVER_PORT
 clients = []
 # todo: clientsの扱いをどうするか。キューで管理するのかどうか
 
-
-
 def create_room():
     client_socket = clients[0][0]
 
     # 部屋の名前と人数を聞く
+    
     
     # 帰ってきた情報を受けて、roomを作成し、roomリストに追加する
         # roomリストに追加
@@ -40,6 +39,19 @@ def create_room():
 
     # connection.close()
     pass
+
+def chat_room():
+
+    with UDP_Server() as serv:
+        sock, addr, port = serv
+
+        data, client_address = sock.recvfrom(4096)
+        data = "Welcome to chatroom!"
+        sock.sendto(data, client_address)
+        data = "Enter your message!"
+        sock.sendto(data, client_address)
+        print("End!")
+
 
 def broadcast_client(sock, addr):
     # todo : まだ　clientへのbroadcat関数
@@ -190,8 +202,9 @@ def main_udp():
         sock.close()
 
 if __name__ == "__main__":
+    chat_room()
 
-    test_chat_room()
+    # test_chat_room()
     # main_tcp()
     
     # main_udp()
