@@ -7,7 +7,7 @@ class UDP_Client:
         self.sock, self.addr, self.port = startup_udp_client()
 
     def __enter__(self):
-        return (self.sock, self.addr, self.port) 
+        return self
     
     def __exit__(self, *args):
         self.sock.close()
