@@ -209,7 +209,7 @@ def main_udp():
 if __name__ == "__main__":
     # chat_room()
 
-    test_chat_room()
-    # main_tcp()
+    # test_chat_room()
+    main_tcp()
     
     # main_udp()

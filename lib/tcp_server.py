@@ -1,3 +1,4 @@
+import socket
 from lib.port_scan import *
 from lib._address_config import *
 

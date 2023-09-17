@@ -2,54 +2,17 @@ import socket
 import sys
 import threading
 from lib.port_scan import *
-from _header import *
+from lib.udp_client import *
+from lib.tcp_client import *
 
-# 定数読み込み用
-import _header
-import _address_config
+# 定数用
+from lib._address_config import *
+from lib._header import *
 
-# network socket type
-NETWORK_SOCKET_TYPE = _address_config.NETWORK_SOCKET_TYPE
-
-# server address & port
-SERVER_ADDRESS = _address_config.SERVER_ADDRESS 
-SERVER_PORT = _address_config.SERVER_PORT
-
-# client address & port
-CLIENT_ADDRESS = _address_config.CLIENT_ADDRESS
-
-def send_tcp_message(sock, header_message):
-    """
-        TCPクライアントからメッセージを送信する
-    """
-    header = create_header(header_message, 0, 0)
-    sock.send(header)
-
-def send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, header_message):
-    """
-        UDPクライアントからメッセージを送信する
-    """
-    header = create_header(header_message, 0, 0)
-    sock.sendto(header, (SERVER_ADDRESS, SERVER_PORT))
-
-def startup_udp_client(client_address:str = CLIENT_ADDRESS ,client_port:str = None) -> tuple:
-    """
-        UDPクライエントを起動する関数
-        connect用のsocketと、(IP_address, PORT)のタプルを返す
-    """
-    # portが指定されていなければ自動で生成
-    if client_port == None:
-        client_port = available_udp_port(client_address)
-
-    try:
-        sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_DGRAM) 
-        sock.bind((client_address, client_port))
-        return (sock, client_address, client_port)
-    except (socket.timeout, ConnectionRefusedError):
-        return
 
 # データ受信関数
 def recv_data(sock, recv_size):
+    
     """
         データ受信用のthread
     """
@@ -72,21 +35,6 @@ def recv_data(sock, recv_size):
         print("shutdown helper.")
         sock.close()
 
-def startup_tcp_client(server_address:str, server_port: int) -> tuple:
-    """
-        TCPクライエントを起動する関数
-        connect用のsocketと、(IP_address, PORT)のタプルを返す
-        server側のアドレスを使う点に注意する
-    """
-    try:
-        sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_STREAM) 
-        sock.connect((server_address, server_port))
-        return (sock, server_address, server_port)
-    except (socket.timeout, ConnectionRefusedError):
-        return
-    except socket.error as e:
-        print(e)
-        return 
 
 def main_tcp():
     """
@@ -100,18 +48,18 @@ def main_tcp():
     thread.start()
 
     # header送信テスト中
-    send_tcp_message(sock, _header.CREATE_ROOM)
+    send_tcp_message(sock, CREATE_ROOM)
 
     # データ入力ループ
     try:
         while True:
             data = input("> ")
             if data == "exit":
-                send_tcp_message(sock, _header.EXIT_MESSAGE)
+                send_tcp_message(sock, EXIT_MESSAGE)
                 break
             else:
                 try:
-                    send_tcp_message(sock, _header.SEND_MESSAGE)
+                    send_tcp_message(sock, SEND_MESSAGE)
                     # sock.send(data.encode("utf-8"))
                 except ConnectionResetError:
                     break
@@ -138,19 +86,19 @@ def main_udp():
     thread.start()
 
     # header送信テスト中
-    send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, _header.CREATE_ROOM)
+    send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, CREATE_ROOM)
 
     # データ入力ループ
     try:
         while True:
             data = input("> ")
             if data == "exit":
-                send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, _header.EXIT_MESSAGE)
+                send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, EXIT_MESSAGE)
                 break
             else:
                 try:
                     print("leadched!")
-                    send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, _header.SEND_MESSAGE)
+                    send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, SEND_MESSAGE)
                 except ConnectionResetError:
                     break
                 except Exception as e:
@@ -162,5 +110,5 @@ def main_udp():
     
 
 if __name__ == "__main__":
-    main_tcp()
-    # main_udp()
+    # main_tcp()
+    main_udp()
