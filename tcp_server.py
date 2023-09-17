@@ -27,3 +27,21 @@ def startup_tcp_server(server_address:str = _address_config.SERVER_ADDRESS, serv
         return (sock, server_address, server_port)
     except (socket.timeout, ConnectionRefusedError):
         return
+
+def send_server_message(connection, message):
+    """
+        connectionに、messageをutf-8にencodeして送るだけの関数
+    """
+    connection.send(message.encode("utf-8"))
+
+def test_chat_room():
+    sock, addr, port = startup_tcp_server()
+    print(f"socket = {sock}, address = {addr}, port = {port}")
+    sock.close()
+    with TCP_Server() as t:
+        print("TCPのテスト")
+        print(t)
+    
+
+if __name__ == "__main__":
+    test_chat_room()

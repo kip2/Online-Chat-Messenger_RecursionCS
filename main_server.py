@@ -1,6 +1,5 @@
 import socket
 import os
-from port_scan import *
 import threading
 import ndjson
 from  tcp_server import *
@@ -21,23 +20,7 @@ SERVER_PORT = _address_config.SERVER_PORT
 clients = []
 # todo: clientsの扱いをどうするか。キューで管理するのかどうか
 
-def send_server_message(connection, message):
-    """
-        connectionに、messageをutf-8にencodeして送るだけの関数
-    """
-    connection.send(message.encode("utf-8"))
 
-def test_chat_room():
-    sock, addr, port = startup_udp_server()
-    print(f"socket = {sock}, address = {addr}, port = {port}")
-    sock.close()
-    with UDP_Server() as s:
-        print("別のテスト")
-        print(s)
-    with TCP_Server() as t:
-        print("TCPのテスト")
-        print(t)
-        
 
 def create_room():
     client_socket = clients[0][0]

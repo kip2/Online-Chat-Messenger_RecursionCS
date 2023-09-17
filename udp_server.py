@@ -1,5 +1,7 @@
-import _address_config
 from port_scan import *
+
+# 定数読み込み用
+import _address_config
 
 class UDP_Server:
     def __enter__(self):
@@ -25,3 +27,14 @@ def startup_udp_server(server_address:str = _address_config.SERVER_ADDRESS, serv
         return (sock, server_address, server_port)
     except (socket.timeout, ConnectionRefusedError):
         return
+
+def test_chat_room():
+    sock, addr, port = startup_udp_server()
+    print(f"socket = {sock}, address = {addr}, port = {port}")
+    sock.close()
+    with UDP_Server() as s:
+        print("別のテスト")
+        print(s)
+    
+if __name__ == "__main__":
+    test_chat_room()
