@@ -3,6 +3,8 @@ import os
 from port_scan import *
 import threading
 import ndjson
+from  tcp_server import *
+from  udp_server import *
 
 # 定数読み込み用
 import _header
@@ -10,7 +12,6 @@ import _address_config
 
 # network socket type
 NETWORK_SOCKET_TYPE = _address_config.NETWORK_SOCKET_TYPE 
-
 # server address
 SERVER_ADDRESS = _address_config.SERVER_ADDRESS 
 # server port
@@ -18,6 +19,7 @@ SERVER_PORT = _address_config.SERVER_PORT
 
 # client list
 clients = []
+# todo: clientsの扱いをどうするか。キューで管理するのかどうか
 
 def send_server_message(connection, message):
     """
@@ -25,45 +27,26 @@ def send_server_message(connection, message):
     """
     connection.send(message.encode("utf-8"))
 
-def startup_tcp_server(server_address:str = SERVER_ADDRESS, server_port:int = None) -> tuple:
-    """
-        TCPサーバーを立てる関数
-        connect用のsocketと、(IP_address, PORT)のタプルを返す
-    """
-    # portが指定されていなければ自動で生成
-    if server_port == None: 
-        server_port = available_tcp_port(server_address)
-
-    try:
-        sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_STREAM) 
-        sock.bind((server_address, server_port))
-        sock.listen(1)
-        return (sock, server_address, server_port)
-    except (socket.timeout, ConnectionRefusedError):
-        return
-
-def startup_udp_server(server_address:str = SERVER_ADDRESS, server_port:str = None) -> tuple:
-    """
-        UDPサーバーを立てる関数
-        connect用のsocketと、(IP_address, PORT)のタプルを返す
-    """
-    # portが指定されていなければ自動で生成
-    if server_port == None:
-        server_port = available_udp_port(server_address)
-
-    try:
-        sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_DGRAM) 
-        sock.bind((server_address, server_port))
-        return (sock, server_address, server_port)
-    except (socket.timeout, ConnectionRefusedError):
-        return
+def test_chat_room():
+    sock, addr, port = startup_udp_server()
+    print(f"socket = {sock}, address = {addr}, port = {port}")
+    sock.close()
+    with UDP_Server() as s:
+        print("別のテスト")
+        print(s)
+    with TCP_Server() as t:
+        print("TCPのテスト")
+        print(t)
+        
 
 def create_room():
-    # 
     client_socket = clients[0][0]
-    # room make serverを立てる
+
+    # 部屋の名前と人数を聞く
     
-    # room make serverのアドレスとport番号を渡す
+    # 帰ってきた情報を受けて、roomを作成し、roomリストに追加する
+        # roomリストに追加
+        # 
 
     # そちらで更新するように、headerに情報を加えて渡す
         # header情報を変えるか？
@@ -74,7 +57,6 @@ def create_room():
 
     # connection.close()
     pass
-    # todo clientsの数字指定をもうちょっとわかりやすくしたい
 
 def broadcast_client(sock, addr):
     # todo : まだ　clientへのbroadcat関数
@@ -122,7 +104,7 @@ def receive_message():
     clients[0][0].send(b"RECEIVED MESSAGE!!!")
 
 def send_client_exit_message():
-    clients[0][0].send(b"BYE client!!!")
+    clients[0][0].send(b"exitOK")
 
 def send_exit_message():
     clients[0][0].send(b"BYE!!!")
@@ -226,6 +208,7 @@ def main_udp():
 
 if __name__ == "__main__":
 
-    main_tcp()
+    test_chat_room()
+    # main_tcp()
     
     # main_udp()
