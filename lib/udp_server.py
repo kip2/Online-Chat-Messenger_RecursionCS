@@ -1,7 +1,5 @@
-from port_scan import *
-
-# 定数読み込み用
-import _address_config
+from lib.port_scan import *
+from lib._address_config import *
 
 class UDP_Server:
     def __enter__(self):
@@ -12,7 +10,7 @@ class UDP_Server:
         self.sock.close()
 
 
-def startup_udp_server(server_address:str = _address_config.SERVER_ADDRESS, server_port:str = None) -> tuple:
+def startup_udp_server(server_address:str = SERVER_ADDRESS, server_port:str = None) -> tuple:
     """
         UDPサーバーを立てる関数
         connect用のsocketと、(IP_address, PORT)のタプルを返す
@@ -22,7 +20,7 @@ def startup_udp_server(server_address:str = _address_config.SERVER_ADDRESS, serv
         server_port = available_udp_port(server_address)
 
     try:
-        sock = socket.socket(_address_config.NETWORK_SOCKET_TYPE, socket.SOCK_DGRAM) 
+        sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_DGRAM) 
         sock.bind((server_address, server_port))
         return (sock, server_address, server_port)
     except (socket.timeout, ConnectionRefusedError):

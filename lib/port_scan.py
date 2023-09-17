@@ -1,12 +1,12 @@
 import socket
-import _address_config
+from lib._address_config import *
 
 # 使用する予定のport番号の範囲
 PORT_RANEG_MIN = 9001
 PORT_RANEG_MAX = 10000
 
-SERVER_HOST = _address_config.SERVER_ADDRESS
-CLIENT_HOST = _address_config.CLIENT_ADDRESS
+SERVER_HOST = SERVER_ADDRESS
+CLIENT_HOST = CLIENT_ADDRESS
 
 # 注意：openなら使用しているので、closeのportを使用する
 def is_tcp_port_open(host:str, port: int) -> bool:
@@ -15,7 +15,7 @@ def is_tcp_port_open(host:str, port: int) -> bool:
     """
     try:
         # ソケットを作成し、指定したポートに接続を試みる
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        with socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_STREAM) as sock:
             # 接続タイムアウトの設定
             sock.settimeout(1)  
             sock.connect((host, port))
@@ -30,7 +30,7 @@ def is_udp_port_open(host:str, port: int) -> bool:
     """
     try:
         # bindできればportが空いている
-        with socket.socket(_address_config.NETWORK_SOCKET_TYPE, socket.SOCK_DGRAM) as sock:
+        with socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_DGRAM) as sock:
             sock.bind((host, port))
         return True  
     # portが空いてない

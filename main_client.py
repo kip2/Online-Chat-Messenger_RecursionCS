@@ -1,7 +1,7 @@
 import socket
 import sys
 import threading
-from port_scan import *
+from lib.port_scan import *
 from _header import *
 
 # 定数読み込み用

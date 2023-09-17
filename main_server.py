@@ -2,19 +2,17 @@ import socket
 import os
 import threading
 import ndjson
-from  tcp_server import *
-from  udp_server import *
+from  lib.tcp_server import *
+from  lib.udp_server import *
 
-# 定数読み込み用
-import _header
-import _address_config
+import lib
 
 # network socket type
-NETWORK_SOCKET_TYPE = _address_config.NETWORK_SOCKET_TYPE 
+NETWORK_SOCKET_TYPE = lib._address_config.NETWORK_SOCKET_TYPE 
 # server address
-SERVER_ADDRESS = _address_config.SERVER_ADDRESS 
+SERVER_ADDRESS = lib._address_config.SERVER_ADDRESS 
 # server port
-SERVER_PORT = _address_config.SERVER_PORT
+SERVER_PORT = lib._address_config.SERVER_PORT
 
 # client list
 clients = []
@@ -52,6 +50,13 @@ def chat_room():
         sock.sendto(data, client_address)
         print("End!")
 
+def test_chat_room():
+    sock, addr, port = startup_udp_server()
+    print(f"socket = {sock}, address = {addr}, port = {port}")
+    sock.close()
+    with UDP_Server() as s:
+        print("UDPのテスト")
+        print(s)
 
 def broadcast_client(sock, addr):
     # todo : まだ　clientへのbroadcat関数
@@ -130,19 +135,19 @@ def main_tcp():
                     print('Received header from client. Byte lengths: Client request {}, message length {}, Data Length {}'.format(client_request,message_length,data_length))
 
                     # headerの種類によって動作を変える
-                    if client_request == _header.CREATE_ROOM:
+                    if client_request == lib._header.CREATE_ROOM:
                         create_room()
-                    elif client_request == _header.REQUEST_ROOM_LIST:
+                    elif client_request == lib._header.REQUEST_ROOM_LIST:
                         send_room_list()
-                    elif client_request == _header.REQUEST_LOG_FILE:
+                    elif client_request == lib._header.REQUEST_LOG_FILE:
                         send_log_file()
-                    elif client_request == _header.ENTER_ROOM:
+                    elif client_request == lib._header.ENTER_ROOM:
                         allow_enter()
-                    elif client_request == _header.SEND_MESSAGE:
+                    elif client_request == lib._header.SEND_MESSAGE:
                         receive_message()
-                    elif client_request == _header.CLIENT_EXIT_MESSAGE:
+                    elif client_request == lib._header.CLIENT_EXIT_MESSAGE:
                         send_client_exit_message()
-                    elif client_request == _header.EXIT_MESSAGE:
+                    elif client_request == lib._header.EXIT_MESSAGE:
                         send_exit_message()
                         break
             except Exception as e:
@@ -177,19 +182,19 @@ def main_udp():
                 print('Received header from client. Byte lengths: Client request {}, message length {}, Data Length {}'.format(client_request,message_length,data_length))
 
                 # headerの種類によって動作を変える
-                if client_request == _header.CREATE_ROOM:
+                if client_request == lib._header.CREATE_ROOM:
                     sock.sendto(data, client_address)
-                elif client_request == _header.REQUEST_ROOM_LIST:
+                elif client_request == lib._header.REQUEST_ROOM_LIST:
                     sock.sendto(data, client_address)
-                elif client_request == _header.REQUEST_LOG_FILE:
+                elif client_request == lib._header.REQUEST_LOG_FILE:
                     sock.sendto(data, client_address)
-                elif client_request == _header.ENTER_ROOM:
+                elif client_request == lib._header.ENTER_ROOM:
                     sock.sendto(data, client_address)
-                elif client_request == _header.SEND_MESSAGE:
+                elif client_request == lib._header.SEND_MESSAGE:
                     sock.sendto(data, client_address)
-                elif client_request == _header.CLIENT_EXIT_MESSAGE:
+                elif client_request == lib._header.CLIENT_EXIT_MESSAGE:
                     sock.sendto(data, client_address)
-                elif client_request == _header.EXIT_MESSAGE:
+                elif client_request == lib._header.EXIT_MESSAGE:
                     sock.sendto(data, client_address)
                     break
             except Exception as e:
@@ -202,9 +207,9 @@ def main_udp():
         sock.close()
 
 if __name__ == "__main__":
-    chat_room()
+    # chat_room()
 
-    # test_chat_room()
+    test_chat_room()
     # main_tcp()
     
     # main_udp()
