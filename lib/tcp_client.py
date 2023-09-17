@@ -6,8 +6,9 @@ class TCP_Client:
     def __init__(self, server_address, server_port):
         self.server_address = server_address
         self.server_port = server_port
-    def __enter__(self):
         self.sock, self.addr, self.port = startup_tcp_client(self.server_address, self.server_port)
+
+    def __enter__(self):
         return (self.sock, self.addr, self.port) 
     
     def __exit__(self, *args):
@@ -37,9 +38,9 @@ def send_tcp_message(sock, header_message):
     sock.send(header)
 
 def test_tcp_class():
-    sock, addr, port = startup_tcp_client(SERVER_ADDRESS, SERVER_PORT)
-    print(f"socket = {sock}, address = {addr}, port = {port}")
-    sock.close()
+    # sock, addr, port = startup_tcp_client(SERVER_ADDRESS, SERVER_PORT)
+    # print(f"socket = {sock}, address = {addr}, port = {port}")
+    # sock.close()
     with TCP_Client(SERVER_ADDRESS, SERVER_PORT) as t:
         print("TCPのテスト")
         print(t)

@@ -3,8 +3,10 @@ from lib._header import *
 from lib.port_scan import *
 
 class UDP_Client:
-    def __enter__(self):
+    def __init__(self):
         self.sock, self.addr, self.port = startup_udp_client()
+
+    def __enter__(self):
         return (self.sock, self.addr, self.port) 
     
     def __exit__(self, *args):

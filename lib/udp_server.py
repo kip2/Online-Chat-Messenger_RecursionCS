@@ -3,8 +3,10 @@ from lib.port_scan import *
 from lib._address_config import *
 
 class UDP_Server:
-    def __enter__(self):
+    def __init__(self):
         self.sock, self.addr, self.port = startup_udp_server()
+
+    def __enter__(self):
         return (self.sock, self.addr, self.port) 
     
     def __exit__(self, *args):
