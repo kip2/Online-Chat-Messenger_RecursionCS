@@ -19,6 +19,11 @@ SERVER_PORT = _address_config.SERVER_PORT
 # client list
 clients = []
 
+def send_server_message(connection, message):
+    """
+        connectionに、messageをutf-8にencodeして送るだけの関数
+    """
+    connection.send(message.encode("utf-8"))
 
 def startup_tcp_server(server_address:str = SERVER_ADDRESS, server_port:int = None) -> tuple:
     """
@@ -54,8 +59,19 @@ def startup_udp_server(server_address:str = SERVER_ADDRESS, server_port:str = No
         return
 
 def create_room():
-    clients[0][0].send(b"CREATE ROOM!\n")
-    clients[0][0].send(b"NEXT MESSAGE!")
+    # 
+    client_socket = clients[0][0]
+    # room make serverを立てる
+    
+    # room make serverのアドレスとport番号を渡す
+
+    # そちらで更新するように、headerに情報を加えて渡す
+        # header情報を変えるか？
+        # client側のheader解析情報が入りそう
+
+    client_socket.send(b"CREATE ROOM!\n")
+    client_socket.send(b"NEXT MESSAGE!")
+
     # connection.close()
     pass
     # todo clientsの数字指定をもうちょっとわかりやすくしたい
@@ -121,49 +137,47 @@ def main_tcp():
     try:
         while True:
             try:
-                print("ここから!")
                 connection, client_address = sock.accept()
                 clients.append((connection, client_address))
                 print("connection from", client_address)
-                # headerの読み取り
-                # header4バイト
-                # clientが何を求めているかを受け取る
-                print("leached!")
-                header = connection.recv(8)
-                # headerからの抽出
-                client_request = int.from_bytes(header[:1], "big")
-                message_length = int.from_bytes(header[1:3], "big")
-                data_length = int.from_bytes(header[4:8], "big")
+                while True:
+                    # headerの読み取り
+                    # header4バイト
+                    # clientが何を求めているかを受け取る
+                    header = connection.recv(8)
+                    # headerからの抽出
+                    client_request = int.from_bytes(header[:1], "big")
+                    message_length = int.from_bytes(header[1:3], "big")
+                    data_length = int.from_bytes(header[4:8], "big")
 
-                print('Received header from client. Byte lengths: Client request {}, message length {}, Data Length {}'.format(client_request,message_length,data_length))
+                    print('Received header from client. Byte lengths: Client request {}, message length {}, Data Length {}'.format(client_request,message_length,data_length))
 
-                # headerの種類によって動作を変える
-                if client_request == _header.CREATE_ROOM:
-                    create_room()
-                elif client_request == _header.REQUEST_ROOM_LIST:
-                    send_room_list()
-                elif client_request == _header.REQUEST_LOG_FILE:
-                    send_log_file()
-                elif client_request == _header.ENTER_ROOM:
-                    allow_enter()
-                elif client_request == _header.SEND_MESSAGE:
-                    receive_message()
-                elif client_request == _header.CLIENT_EXIT_MESSAGE:
-                    send_client_exit_message()
-                elif client_request == _header.EXIT_MESSAGE:
-                    send_exit_message()
-                    break
+                    # headerの種類によって動作を変える
+                    if client_request == _header.CREATE_ROOM:
+                        create_room()
+                    elif client_request == _header.REQUEST_ROOM_LIST:
+                        send_room_list()
+                    elif client_request == _header.REQUEST_LOG_FILE:
+                        send_log_file()
+                    elif client_request == _header.ENTER_ROOM:
+                        allow_enter()
+                    elif client_request == _header.SEND_MESSAGE:
+                        receive_message()
+                    elif client_request == _header.CLIENT_EXIT_MESSAGE:
+                        send_client_exit_message()
+                    elif client_request == _header.EXIT_MESSAGE:
+                        send_exit_message()
+                        break
             except Exception as e:
                 print("Error: " + str(e))
                 break
-            # finally:
-            #     connection.close()
+    except KeyboardInterrupt:
+        pass
     finally:
         print("Closing current connection")
         sock.close()
 
 def main_udp():
-
     print("Starting up udp on {} port {}".format(SERVER_ADDRESS, SERVER_PORT))
 
     sock, addr, port = startup_udp_server(SERVER_ADDRESS, SERVER_PORT)
@@ -187,26 +201,25 @@ def main_udp():
 
                 # headerの種類によって動作を変える
                 if client_request == _header.CREATE_ROOM:
-                    # create_room()
                     sock.sendto(data, client_address)
                 elif client_request == _header.REQUEST_ROOM_LIST:
-                    send_room_list()
+                    sock.sendto(data, client_address)
                 elif client_request == _header.REQUEST_LOG_FILE:
-                    send_log_file()
+                    sock.sendto(data, client_address)
                 elif client_request == _header.ENTER_ROOM:
-                    allow_enter()
+                    sock.sendto(data, client_address)
                 elif client_request == _header.SEND_MESSAGE:
                     sock.sendto(data, client_address)
-                    # receive_message()
                 elif client_request == _header.CLIENT_EXIT_MESSAGE:
-                    send_client_exit_message()
+                    sock.sendto(data, client_address)
                 elif client_request == _header.EXIT_MESSAGE:
                     sock.sendto(data, client_address)
-                    # send_exit_message()
                     break
             except Exception as e:
                 print("Error: " + str(e))
                 break
+    except KeyboardInterrupt:
+        pass
     finally:
         print("Closing current connection")
         sock.close()

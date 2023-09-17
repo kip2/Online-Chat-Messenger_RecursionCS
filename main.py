@@ -1,6 +1,4 @@
 import sys
-from client import *
-from server import *
 
 # チャットルームの辞書配列
 chat_rooms= {}

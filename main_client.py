@@ -18,10 +18,6 @@ SERVER_PORT = _address_config.SERVER_PORT
 # client address & port
 CLIENT_ADDRESS = _address_config.CLIENT_ADDRESS
 
-
-# def create_exit_header():
-#     return _header.EXIT_MESSAGE.to_bytes(1,"big") + int(0).to_bytes(3,"big") + int(0).to_bytes(4,"big")
-
 def send_tcp_message(sock, header_message):
     """
         TCPクライアントからメッセージを送信する
@@ -54,6 +50,9 @@ def startup_udp_client(client_address:str = CLIENT_ADDRESS ,client_port:str = No
 
 # データ受信関数
 def recv_data(sock, recv_size):
+    """
+        データ受信用のthread
+    """
     try:
         while True:
             try:
@@ -90,6 +89,9 @@ def startup_tcp_client(server_address:str, server_port: int) -> tuple:
         return 
 
 def main_tcp():
+    """
+        tcp通信のmain関数
+    """
     sock, address, port= startup_tcp_client(SERVER_ADDRESS, SERVER_PORT)
 
     recv_size = 1024
@@ -105,9 +107,6 @@ def main_tcp():
         while True:
             data = input("> ")
             if data == "exit":
-                # sock.send(data.encode("utf-8"))
-                # header = create_header(EXIT_MESSAGE, 0, 0)
-                # sock.send(header)
                 send_tcp_message(sock, _header.EXIT_MESSAGE)
                 break
             else:
@@ -119,6 +118,8 @@ def main_tcp():
                 except Exception as e:
                     print("Error: ", + str(e))
                     break
+    except Exception as e:
+        print("Error: ", str(e))
     finally:
         print("shutdown main")
         sock.shutdown(socket.SHUT_RD)
@@ -126,6 +127,9 @@ def main_tcp():
     
 
 def main_udp():
+    """
+        udp通信のmain関数
+    """
     sock, address, port = startup_udp_client(CLIENT_ADDRESS)
 
     recv_size = 1024
@@ -158,5 +162,5 @@ def main_udp():
     
 
 if __name__ == "__main__":
-    # main_tcp()
-    main_udp()
+    main_tcp()
+    # main_udp()
