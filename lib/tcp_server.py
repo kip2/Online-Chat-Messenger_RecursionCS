@@ -33,7 +33,7 @@ def send_server_message(connection, message):
     """
     connection.send(message.encode("utf-8"))
 
-def test_chat_room():
+def test_tcp_class():
     sock, addr, port = startup_tcp_server()
     print(f"socket = {sock}, address = {addr}, port = {port}")
     sock.close()
@@ -43,4 +43,4 @@ def test_chat_room():
     
 
 if __name__ == "__main__":
-    test_chat_room()
+    test_tcp_class()

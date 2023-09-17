@@ -2,6 +2,14 @@ import socket
 from lib._header import *
 from lib.port_scan import *
 
+class UDP_Client:
+    def __enter__(self):
+        self.sock, self.addr, self.port = startup_udp_client()
+        return (self.sock, self.addr, self.port) 
+    
+    def __exit__(self, *args):
+        self.sock.close()
+
 def startup_udp_client(client_address:str = CLIENT_ADDRESS ,client_port:str = None) -> tuple:
     """
         UDPクライエントを起動する関数
@@ -24,3 +32,14 @@ def send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, header_message):
     """
     header = create_header(header_message, 0, 0)
     sock.sendto(header, (SERVER_ADDRESS, SERVER_PORT))
+
+def test_udp_class():
+    sock, addr, port = startup_udp_client()
+    print(f"socket = {sock}, address = {addr}, port = {port}")
+    sock.close()
+    with UDP_Client() as s:
+        print("別のテスト")
+        print(s)
+
+if __name__ == "__main__":
+    test_udp_class()

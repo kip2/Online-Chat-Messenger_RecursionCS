@@ -2,6 +2,17 @@ import socket
 from lib._header import *
 from lib.port_scan import *
 
+class TCP_Client:
+    def __init__(self, server_address, server_port):
+        self.server_address = server_address
+        self.server_port = server_port
+    def __enter__(self):
+        self.sock, self.addr, self.port = startup_tcp_client(self.server_address, self.server_port)
+        return (self.sock, self.addr, self.port) 
+    
+    def __exit__(self, *args):
+        self.sock.close()
+
 def startup_tcp_client(server_address:str, server_port: int) -> tuple:
     """
         TCPクライエントを起動する関数
@@ -24,3 +35,15 @@ def send_tcp_message(sock, header_message):
     """
     header = create_header(header_message, 0, 0)
     sock.send(header)
+
+def test_tcp_class():
+    sock, addr, port = startup_tcp_client(SERVER_ADDRESS, SERVER_PORT)
+    print(f"socket = {sock}, address = {addr}, port = {port}")
+    sock.close()
+    with TCP_Client(SERVER_ADDRESS, SERVER_PORT) as t:
+        print("TCPのテスト")
+        print(t)
+    
+
+if __name__ == "__main__":
+    test_tcp_class()

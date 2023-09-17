@@ -27,7 +27,7 @@ def startup_udp_server(server_address:str = SERVER_ADDRESS, server_port:str = No
     except (socket.timeout, ConnectionRefusedError):
         return
 
-def test_chat_room():
+def test_udp_class():
     sock, addr, port = startup_udp_server()
     print(f"socket = {sock}, address = {addr}, port = {port}")
     sock.close()
@@ -36,4 +36,4 @@ def test_chat_room():
         print(s)
     
 if __name__ == "__main__":
-    test_chat_room()
+    test_udp_class()
