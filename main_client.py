@@ -58,12 +58,15 @@ def test_chat_room():
         while True:
             data = input("> ")
             if data == "exit":
+                send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, CLIENT_EXIT_MESSAGE)
+                break
+            if data == "se":
                 send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, EXIT_MESSAGE)
                 break
             else:
                 try:
                     # header送信
-                    send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, SEND_MESSAGE)
+                    # send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, SEND_MESSAGE)
                     # messageの送信
                     message = data
                     send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, message)
@@ -129,6 +132,9 @@ def main_udp():
         while True:
             data = input("> ")
             if data == "exit":
+                send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, CLIENT_EXIT_MESSAGE)
+                break
+            if data == "server exit":
                 send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, EXIT_MESSAGE)
                 break
             else:
@@ -148,9 +154,9 @@ def main_udp():
 if __name__ == "__main__":
     # main_tcp()
     # main_udp()
-    # test_chat_room()
+    test_chat_room()
 
     # cipher_suite = Fernet(SECRET_KEY)
     
-    cr = create_information_new_chat_room()
-    print(cr)
+    # cr = create_information_new_chat_room()
+    # print(cr)

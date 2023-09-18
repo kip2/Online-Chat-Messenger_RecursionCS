@@ -6,6 +6,9 @@ class UDP_Server:
     def __init__(self):
         self.sock, self.addr, self.port = startup_udp_server()
 
+    def unpack(self):
+        return (self.sock, self.addr, self.port)
+
     def __enter__(self):
         return self
     

@@ -39,6 +39,8 @@ def send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, message):
     """
         UDPクライアントからheaderを送信する
     """
+    header = create_header(SEND_MESSAGE, 0, 0)
+    sock.sendto(header, (SERVER_ADDRESS, SERVER_PORT))
     message = encode_message(message)
     sock.sendto(message, (SERVER_ADDRESS, SERVER_PORT))
 
