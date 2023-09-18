@@ -4,13 +4,23 @@ import threading
 from lib.port_scan import *
 from lib.udp_client import *
 from lib.tcp_client import *
+from lib.client_method import *
 
 # 定数用
 from lib._address_config import *
 from lib._header import *
 
+RECV_SIZE = 1024
 
-# データ受信関数
+def printd(byte_data):
+    """
+        byteデータをdecodeしてprintする関数
+    """
+    print(byte_data.decode(CHARA_CODE))
+
+def mes_decode(byte_data):
+    return byte_data.decode(CHARA_CODE)
+
 def recv_data(sock, recv_size):
     
     """
@@ -22,7 +32,7 @@ def recv_data(sock, recv_size):
                 data = sock.recv(recv_size)
                 if data == b"":
                     break
-                print(data.decode("utf-8"))
+                printd(data)
             except ConnectionResetError:
                 break
             except OSError as e:
@@ -35,6 +45,34 @@ def recv_data(sock, recv_size):
         print("shutdown helper.")
         sock.close()
 
+def test_chat_room():
+    with UDP_Client() as clt:
+        sock = clt.sock
+        thread = threading.Thread(target=recv_data, args=(sock, RECV_SIZE,))
+        thread.start()
+        
+        # header送信テスト中
+        send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, CREATE_ROOM)
+
+        # データ入力ループ
+        while True:
+            data = input("> ")
+            if data == "exit":
+                send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, EXIT_MESSAGE)
+                break
+            else:
+                try:
+                    # header送信
+                    send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, SEND_MESSAGE)
+                    # messageの送信
+                    message = data
+                    send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, message)
+
+                except ConnectionResetError:
+                    break
+                except Exception as e:
+                    print("Error: ", + str(e))
+                    break
 
 def main_tcp():
     """
@@ -42,24 +80,23 @@ def main_tcp():
     """
     sock, address, port= startup_tcp_client(SERVER_ADDRESS, SERVER_PORT)
 
-    recv_size = 1024
     # データ受信をサブスレッドで実行
-    thread = threading.Thread(target=recv_data, args=(sock, recv_size,))
+    thread = threading.Thread(target=recv_data, args=(sock, RECV_SIZE,))
     thread.start()
 
     # header送信テスト中
-    send_tcp_message(sock, CREATE_ROOM)
+    send_tcp_header(sock, CREATE_ROOM)
 
     # データ入力ループ
     try:
         while True:
             data = input("> ")
             if data == "exit":
-                send_tcp_message(sock, EXIT_MESSAGE)
+                send_tcp_header(sock, EXIT_MESSAGE)
                 break
             else:
                 try:
-                    send_tcp_message(sock, SEND_MESSAGE)
+                    send_tcp_header(sock, SEND_MESSAGE)
                     # sock.send(data.encode("utf-8"))
                 except ConnectionResetError:
                     break
@@ -80,25 +117,23 @@ def main_udp():
     """
     sock, address, port = startup_udp_client(CLIENT_ADDRESS)
 
-    recv_size = 1024
     # データ受信をサブスレッドで実行
-    thread = threading.Thread(target=recv_data, args=(sock, recv_size, ))
+    thread = threading.Thread(target=recv_data, args=(sock, RECV_SIZE, ))
     thread.start()
 
     # header送信テスト中
-    send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, CREATE_ROOM)
+    send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, CREATE_ROOM)
 
     # データ入力ループ
     try:
         while True:
             data = input("> ")
             if data == "exit":
-                send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, EXIT_MESSAGE)
+                send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, EXIT_MESSAGE)
                 break
             else:
                 try:
-                    print("leadched!")
-                    send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, SEND_MESSAGE)
+                    send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, SEND_MESSAGE)
                 except ConnectionResetError:
                     break
                 except Exception as e:
@@ -109,6 +144,13 @@ def main_udp():
         sock.close()
     
 
+
 if __name__ == "__main__":
     # main_tcp()
-    main_udp()
+    # main_udp()
+    # test_chat_room()
+
+    # cipher_suite = Fernet(SECRET_KEY)
+    
+    cr = create_information_new_chat_room()
+    print(cr)

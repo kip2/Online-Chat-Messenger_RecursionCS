@@ -85,8 +85,6 @@ def create_new_chat_room():
     return
     
 
-if __name__ == "__main__":
-    pass
 def prologue():
     print("Welcome Online chat Messenger!")
     print("Make your chat room!")

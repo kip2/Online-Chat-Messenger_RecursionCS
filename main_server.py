@@ -38,25 +38,23 @@ def create_room():
     # connection.close()
     pass
 
-def chat_room():
+def test_chat_room():
 
     with UDP_Server() as serv:
-        sock, addr, port = serv
+        sock = serv.sock
 
         data, client_address = sock.recvfrom(4096)
-        data = "Welcome to chatroom!"
+        data = b"Welcome to chatroom!"
         sock.sendto(data, client_address)
-        data = "Enter your message!"
+        data = b"Enter your message!"
         sock.sendto(data, client_address)
         print("End!")
 
-def test_chat_room():
-    sock, addr, port = startup_udp_server()
-    print(f"socket = {sock}, address = {addr}, port = {port}")
-    sock.close()
-    with UDP_Server() as s:
-        print("UDPのテスト")
-        print(s)
+def test_mes_udp():
+    with UDP_Server() as serv:
+        sock = serv.sock
+
+        data, client_address = sock.recvfrom(4096)
 
 def broadcast_client(sock, addr):
     # todo : まだ　clientへのbroadcat関数
@@ -159,6 +157,56 @@ def main_tcp():
         print("Closing current connection")
         sock.close()
 
+def chat_room():
+    print("Starting up CHAT ROOM on {} port {}".format(SERVER_ADDRESS, SERVER_PORT))
+    sock, addr, port = startup_udp_server(SERVER_ADDRESS, SERVER_PORT)
+    print(f"socket = {sock}, address = {addr}, port = {port}")
+
+    try:
+        while True:
+            try:
+                data, client_address = sock.recvfrom(4096)
+                print("connection from", client_address)
+                # headerの読み取り
+                # header4バイト
+                # clientが何を求めているかを受け取る
+                header = data
+                # headerからの抽出
+                client_request = int.from_bytes(header[:1], "big")
+                message_length = int.from_bytes(header[1:3], "big")
+                data_length = int.from_bytes(header[4:8], "big")
+
+                print('Received header from client. Byte lengths: Client request {}, message length {}, Data Length {}'.format(client_request,message_length,data_length))
+
+                # headerの種類によって動作を変える
+                if client_request == lib._header.CREATE_ROOM:
+                    sock.sendto(data, client_address)
+                elif client_request == lib._header.REQUEST_ROOM_LIST:
+                    sock.sendto(data, client_address)
+                elif client_request == lib._header.REQUEST_LOG_FILE:
+                    sock.sendto(data, client_address)
+                elif client_request == lib._header.ENTER_ROOM:
+                    sock.sendto(data, client_address)
+                elif client_request == lib._header.SEND_MESSAGE:
+                    print("Received message!")
+                    data = sock.recv(4096)
+                    sock.sendto(data, client_address)
+                elif client_request == lib._header.CLIENT_EXIT_MESSAGE:
+                    sock.sendto(data, client_address)
+                elif client_request == lib._header.EXIT_MESSAGE:
+                    sock.sendto(data, client_address)
+                    break
+            except Exception as e:
+                print("Error: " + str(e))
+                break
+    except KeyboardInterrupt:
+        pass
+    finally:
+        print("Closing current connection")
+        sock.close()
+
+#----------------------------------------------------------------- -------------------------------
+
 def main_udp():
     print("Starting up udp on {} port {}".format(SERVER_ADDRESS, SERVER_PORT))
 
@@ -207,9 +255,10 @@ def main_udp():
         sock.close()
 
 if __name__ == "__main__":
-    # chat_room()
+    chat_room()
+    # test_mes_udp()
 
     # test_chat_room()
-    main_tcp()
+    # main_tcp()
     
     # main_udp()

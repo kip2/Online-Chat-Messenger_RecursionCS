@@ -30,12 +30,23 @@ def startup_tcp_client(server_address:str, server_port: int) -> tuple:
         print(e)
         return 
 
-def send_tcp_message(sock, header_message):
+def send_tcp_header(sock, header_message):
     """
         TCPクライアントからメッセージを送信する
     """
     header = create_header(header_message, 0, 0)
     sock.send(header)
+
+def send_tcp_message(sock, message):
+    message = encode_message(message)
+    sock.send(message)
+
+def encode_message(message: str):
+    """
+        utf-8 の 
+        str -> byte へのエンコード
+    """
+    return message.encode("utf-8")
 
 def test_tcp_class():
     # sock, addr, port = startup_tcp_client(SERVER_ADDRESS, SERVER_PORT)

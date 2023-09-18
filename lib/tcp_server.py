@@ -1,6 +1,8 @@
 import socket
 from lib.port_scan import *
 from lib._address_config import *
+from lib._header import *
+
 
 class TCP_Server:
     def __init__(self):
@@ -33,7 +35,7 @@ def send_server_message(connection, message):
     """
         connectionに、messageをutf-8にencodeして送るだけの関数
     """
-    connection.send(message.encode("utf-8"))
+    connection.send(message.encode(CHARA_CODE))
 
 def test_tcp_class():
     sock, addr, port = startup_tcp_server()

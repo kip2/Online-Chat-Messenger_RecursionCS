@@ -5,3 +5,4 @@ from . import udp_server
 from . import port_scan
 from . import udp_client
 from . import tcp_client
+from . import client_method

@@ -1,3 +1,4 @@
+from lib.udp_server import * 
 
 # チャットルームの辞書配列
 chat_rooms= {}
@@ -20,10 +21,12 @@ class ChatRoom:
         field:
             title:       チャットルームの名前
             max_member:  チャットルームの最大参加人数
-            // todo
-            // サーバークリエイト時にランダムな値を生成する
+            socket:      通信用socket
             address:     アドレス
             port:        ポート番号
+
+            client_list: 入室しているクライアント情報
+            ljust_max:   チャットメッセージの文字列整形管理用
     """
     # client HashMap
     client_list = {}
@@ -34,7 +37,14 @@ class ChatRoom:
         # validationがいる
         self.title: str = title
         self.max_member: int = max_member
-        #self.room_server_create()
+        self.room_socket_create()
+
+    def __del__(self):
+        """
+            デストラクター
+            pythonプログラム終了時に動作
+        """
+        self.sock.close()
 
     def create_client_and_enter_chat_room(self, name, address, port):
         """
@@ -49,10 +59,11 @@ class ChatRoom:
         """
         self.client_list[chat_client.name] = chat_client
 
-    def room_server_create():
+    def room_socket_create(self):
         """
             chatroomのサーバーを作成する
         """
+        self.sock, self.address, self.port = startup_udp_server()
         pass
 
 def chat_room_create(room_name: str, max_member: int):
@@ -65,20 +76,38 @@ def chat_room_create(room_name: str, max_member: int):
     chat_rooms[room_name] = chat_room
     return chat_room
 
-def create_new_chat_room():
-    """
-        新しいチャットルームを作成する関数
-    """
-    while True:
-        room_name = input("Room Name? > ")
-        if not room_name == ""  and not room_name.isspace(): break
+# def create_new_chat_room():
+#     """
+#         新しいチャットルームを作成する関数
+#     """
+#     while True:
+#         room_name = input("Room Name? > ")
+#         if not room_name == ""  and not room_name.isspace(): break
         
-    while True:
-        max_member = input("maximum number? > ")
-        if max_member.isdecimal(): break
-    chat_room_create(room_name, max_member)
-    return
+#     while True:
+#         max_member = input("maximum number? > ")
+#         if max_member.isdecimal(): break
+#     chat_room = chat_room_create(room_name, max_member)
+#     return chat_room
+
+# def create_information_new_chat_room():
+#     """
+#         新しいチャットルームを作成する関数
+#         clientから送信するメッセージ
+#     """
+#     while True:
+#         room_name = input("Room Name? > ")
+#         if not room_name == ""  and not room_name.isspace(): break
+        
+#     while True:
+#         max_member = input("maximum number? > ")
+#         if max_member.isdecimal(): break
+#     return (room_name, max_member)
     
 
 if __name__ == "__main__":
+    # cr = create_new_chat_room()
+    # print("cr:", cr, " cr.name:", cr.title, " cr.maximum:", cr.max_member)
+    # cr = create_information_new_chat_room()
+    # print(cr)
     pass
