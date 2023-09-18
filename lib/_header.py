@@ -7,6 +7,10 @@ SEND_MESSAGE = 5
 CLIENT_EXIT_MESSAGE = 6
 EXIT_MESSAGE = 0
 
+# 文字コード
+CHARA_CODE = "UTF-8"
+
+
 def create_header(client_request, message_length,data_length):
     """
         送信用のheaderを作成する関数
