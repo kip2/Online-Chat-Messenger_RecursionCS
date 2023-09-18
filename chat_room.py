@@ -20,8 +20,22 @@ class ChatClient:
         self.port: str = port
 
 class ChatRooms:
+    # このクラス唯一のインスタンス 
+    _instance = None
+
+    # chatrooms配列。singletonにより、ただ一つ管理されることが保証
     chat_rooms = []
-    def __init__(self):
+
+    # __new__を書き換えてsingletonに
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(ChatRooms, cls).__new__(cls)
+            cls._instance.initialize()
+        return cls._instance
+
+    # 必ず呼ばれる初期化処理
+    def initialize(self):
+        print("initialize")
         pass
 
 # todo: 次回、この辺りから
@@ -114,12 +128,7 @@ def chat_room_create(room_name: str, max_member: int):
     chat_rooms[room_name] = chat_room
     return chat_room
 
-
-if __name__ == "__main__":
-    # cr = create_new_chat_room()
-    # print("cr:", cr, " cr.name:", cr.title, " cr.maximum:", cr.max_member)
-    # cr = create_information_new_chat_room()
-    # print(cr)
+def test_chat_room():
 
     cl1 = ChatClient("taro", "address", 9001)
     print("client:", cl1, "name:", cl1.name)
@@ -171,5 +180,15 @@ if __name__ == "__main__":
     print(room.ljust_max)
     print("room name:", room.title, "room member:", [ x for x in room.client_list] )
     
+
+if __name__ == "__main__":
+    # cr = create_new_chat_room()
+    # print("cr:", cr, " cr.name:", cr.title, " cr.maximum:", cr.max_member)
+    # cr = create_information_new_chat_room()
+    # print(cr)
+    singleton1 = ChatRooms()
+    singleton2 = ChatRooms()
+
+    print(singleton1 is singleton2)
 
     pass
