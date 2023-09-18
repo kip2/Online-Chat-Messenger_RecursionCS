@@ -3,6 +3,9 @@ from lib.udp_server import *
 # チャットルームの辞書配列
 chat_rooms= {}
 
+# メッセージフォーマット用のspace
+SPACE = 3
+
 class ChatClient:
     """
         field:
@@ -15,6 +18,15 @@ class ChatClient:
         self.name: str = name
         self.address: str = address
         self.port: str = port
+
+class ChatRooms:
+    chat_rooms = []
+    def __init__(self):
+        pass
+
+# todo: 次回、この辺りから
+        
+
 
 class ChatRoom:
     """
@@ -46,6 +58,12 @@ class ChatRoom:
         """
         self.sock.close()
 
+    def room_socket_create(self):
+        """
+            chatroomのサーバーを作成する
+        """
+        self.sock, self.address, self.port = startup_udp_server()
+
     def create_client_and_enter_chat_room(self, name, address, port):
         """
             クライエント作成と入室を同時にする
@@ -57,14 +75,34 @@ class ChatRoom:
         """
             roomに入室したクライエントを登録する
         """
+        self.generate_message_format(chat_client.name)
         self.client_list[chat_client.name] = chat_client
+    
+    def exit_client(self, chat_client: ChatClient):
+        """
+            chat roomからclientを退室させる処理
+        """
+        self.regenerate_message_format()
+        del self.client_list[chat_client.name]
 
-    def room_socket_create(self):
+    def generate_message_format(self, client_name: str):
         """
-            chatroomのサーバーを作成する
+            新しいクライアントがnewされた時に実行すること
+            チャットメッセージの名前の最大文字数から、メッセージとの適切な感覚を調整
         """
-        self.sock, self.address, self.port = startup_udp_server()
-        pass
+        new_ljust_max = SPACE + len(client_name)
+        if new_ljust_max >= self.ljust_max: self.ljust_max = new_ljust_max
+        # for client in clients:
+        #     if len(client.name) >= max: max = len(client.name)
+    def regenerate_message_format(self) -> int:
+        """
+            新しいクライアントがnewされた時に実行する
+            チャットメッセージの名前の最大文字数から、メッセージとの適切な感覚を調整
+        """
+        max = 0
+        for client_name in self.client_list:
+            if len(client_name) >= max: max = len(client_name)
+        self.ljust_max = max + SPACE
 
 def chat_room_create(room_name: str, max_member: int):
     """
@@ -76,23 +114,62 @@ def chat_room_create(room_name: str, max_member: int):
     chat_rooms[room_name] = chat_room
     return chat_room
 
-# def create_new_chat_room():
-#     """
-#         新しいチャットルームを作成する関数
-#     """
-#     while True:
-#         room_name = input("Room Name? > ")
-#         if not room_name == ""  and not room_name.isspace(): break
-        
-#     while True:
-#         max_member = input("maximum number? > ")
-#         if max_member.isdecimal(): break
-#     chat_room = chat_room_create(room_name, max_member)
-#     return chat_room
 
 if __name__ == "__main__":
     # cr = create_new_chat_room()
     # print("cr:", cr, " cr.name:", cr.title, " cr.maximum:", cr.max_member)
     # cr = create_information_new_chat_room()
     # print(cr)
+
+    cl1 = ChatClient("taro", "address", 9001)
+    print("client:", cl1, "name:", cl1.name)
+
+    room = ChatRoom("room1", 5)
+    print("room:", room, "name:", room.title)
+    
+    # new clients
+    cl2 = ChatClient("jiro", "address", 9002)
+    print("client:", cl2, "name:", cl2.name)
+
+    cl3 = ChatClient("saburo", "address", 9003)
+    print("client:", cl3, "name:", cl3.name)
+
+    cl4 = ChatClient("shiro", "address", 9004)
+    print("client:", cl4, "name:", cl4.name)
+
+    cl5 = ChatClient("goro", "address", 9005)
+    print("client:", cl5, "name:", cl5.name)
+
+    # enter room
+    room.enter_chat_room(cl1)
+    print(room.ljust_max)
+    room.enter_chat_room(cl2)
+    print(room.ljust_max)
+    room.enter_chat_room(cl3)
+    print(room.ljust_max)
+    room.enter_chat_room(cl4)
+    print(room.ljust_max)
+    room.enter_chat_room(cl5)
+    print(room.ljust_max)
+
+    # debug print
+    print("room name:", room.title, "room member:",[ x for x in room.client_list] )
+
+    # client exit room
+    room.exit_client(cl1)
+    print("room name:", room.title, "room member:", [ x for x in room.client_list] )
+    room.exit_client(cl2)
+    print(room.ljust_max)
+    print("room name:", room.title, "room member:", [ x for x in room.client_list] )
+    room.exit_client(cl3)
+    print(room.ljust_max)
+    print("room name:", room.title, "room member:", [ x for x in room.client_list] )
+    room.exit_client(cl4)
+    print(room.ljust_max)
+    print("room name:", room.title, "room member:", [ x for x in room.client_list] )
+    room.exit_client(cl5)
+    print(room.ljust_max)
+    print("room name:", room.title, "room member:", [ x for x in room.client_list] )
+    
+
     pass

@@ -173,7 +173,6 @@ def chat_room():
                 elif client_request == lib._header.CLIENT_EXIT_MESSAGE:
                     client_room_exit(client_address)
                 elif client_request == lib._header.EXIT_MESSAGE:
-                    sock.sendto(data, client_address)
                     break
 
             except KeyboardInterrupt:
