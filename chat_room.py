@@ -4,7 +4,7 @@ from lib.udp_server import *
 chat_rooms= {}
 
 # メッセージフォーマット用のspace
-SPACE = 3
+MESSAGE_SPACE = 3
 
 class ChatClient:
     """
@@ -18,29 +18,6 @@ class ChatClient:
         self.name: str = name
         self.address: str = address
         self.port: str = port
-
-class ChatRooms:
-    # このクラス唯一のインスタンス 
-    _instance = None
-
-    # chatrooms配列。singletonにより、ただ一つ管理されることが保証
-    chat_rooms = []
-
-    # __new__を書き換えてsingletonに
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(ChatRooms, cls).__new__(cls)
-            cls._instance.initialize()
-        return cls._instance
-
-    # 必ず呼ばれる初期化処理
-    def initialize(self):
-        print("initialize")
-        pass
-
-# todo: 次回、この辺りから
-        
-
 
 class ChatRoom:
     """
@@ -104,10 +81,9 @@ class ChatRoom:
             新しいクライアントがnewされた時に実行すること
             チャットメッセージの名前の最大文字数から、メッセージとの適切な感覚を調整
         """
-        new_ljust_max = SPACE + len(client_name)
+        new_ljust_max = MESSAGE_SPACE + len(client_name)
         if new_ljust_max >= self.ljust_max: self.ljust_max = new_ljust_max
-        # for client in clients:
-        #     if len(client.name) >= max: max = len(client.name)
+
     def regenerate_message_format(self) -> int:
         """
             新しいクライアントがnewされた時に実行する
@@ -116,7 +92,37 @@ class ChatRoom:
         max = 0
         for client_name in self.client_list:
             if len(client_name) >= max: max = len(client_name)
-        self.ljust_max = max + SPACE
+        self.ljust_max = max + MESSAGE_SPACE
+
+class ChatRooms:
+    # このクラス唯一のインスタンス 
+    _instance = None
+
+    # chatrooms配列。singletonにより、ただ一つ管理されることが保証
+    chat_rooms = []
+
+    # __new__を書き換えてsingletonに
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(ChatRooms, cls).__new__(cls)
+            cls._instance.initialize()
+        return cls._instance
+
+    # 初期化処理
+    def initialize(self):
+        pass
+
+    def append_room(self, room: ChatRoom):
+        """
+            chatroomを登録する
+        """
+        self.chat_rooms.append(room)
+        
+    def remove_room(self, room: ChatRoom):
+        """
+            指定されたchatroomの登録を削除する
+        """
+        self.chat_rooms.remove(room)
 
 def chat_room_create(room_name: str, max_member: int):
     """
@@ -128,14 +134,72 @@ def chat_room_create(room_name: str, max_member: int):
     chat_rooms[room_name] = chat_room
     return chat_room
 
-def test_chat_room():
 
-    cl1 = ChatClient("taro", "address", 9001)
-    print("client:", cl1, "name:", cl1.name)
+# ---- test code ----
+
+def test_singleton_class():
+    # singleton test
+    singleton1 = ChatRooms()
+    singleton2 = ChatRooms()
+
+    # 同じインスタンスなのでTrueになる
+    assert True, (singleton1 is singleton2)
+
+def test_chatrooms_append():
+    room_list = ChatRooms()
+
+    # singleton room append test
+    room = ChatRoom("room1", 5)
+    assert "room1" ,room.title
+    room_list.append_room(room) 
+    assert "room1", room_list.chat_rooms[0].title
+
+def test_chatrooms_remove():
+    
+    room_list = ChatRooms()
+    room1 = ChatRoom("room1", 5)
+    room2 = ChatRoom("room2", 5)
+    room3 = ChatRoom("room3", 5)
+    room4 = ChatRoom("room4", 5)
+    room5 = ChatRoom("room5", 5)
+    room6 = ChatRoom("room6", 5)
+    room7 = ChatRoom("room7", 5)
+    
+    room_list.append_room(room1) 
+    room_list.append_room(room2) 
+    room_list.append_room(room3) 
+    room_list.append_room(room4) 
+    room_list.append_room(room5) 
+    room_list.append_room(room6) 
+    room_list.append_room(room7) 
+
+    print("現在のリスト")
+    print(room_list.chat_rooms)
+    print()
+
+
+    room_list.remove_room(room1) 
+    room_list.remove_room(room2) 
+    room_list.remove_room(room3) 
+    room_list.remove_room(room4) 
+    room_list.remove_room(room5) 
+    room_list.remove_room(room6) 
+    room_list.remove_room(room7) 
+
+    print("現在のリスト")
+    print(room_list.chat_rooms)
+    print()
+
+
+
+def test_chat_room():
 
     room = ChatRoom("room1", 5)
     print("room:", room, "name:", room.title)
     
+    cl1 = ChatClient("taro", "address", 9001)
+    print("client:", cl1, "name:", cl1.name)
+
     # new clients
     cl2 = ChatClient("jiro", "address", 9002)
     print("client:", cl2, "name:", cl2.name)
@@ -180,15 +244,10 @@ def test_chat_room():
     print(room.ljust_max)
     print("room name:", room.title, "room member:", [ x for x in room.client_list] )
     
-
 if __name__ == "__main__":
-    # cr = create_new_chat_room()
-    # print("cr:", cr, " cr.name:", cr.title, " cr.maximum:", cr.max_member)
-    # cr = create_information_new_chat_room()
-    # print(cr)
-    singleton1 = ChatRooms()
-    singleton2 = ChatRooms()
 
-    print(singleton1 is singleton2)
+    # test_singleton_class()
+    
+    # test_chatrooms_remove()
 
     pass
