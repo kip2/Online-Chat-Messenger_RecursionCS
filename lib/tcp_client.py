@@ -12,6 +12,9 @@ class TCP_Client:
         return self
     
     def __exit__(self, *args):
+        """
+            python終了時にsocketをcloseする
+        """
         self.sock.close()
 
 def startup_tcp_client(server_address:str, server_port: int) -> tuple:
@@ -32,12 +35,15 @@ def startup_tcp_client(server_address:str, server_port: int) -> tuple:
 
 def send_tcp_header(sock, header_message):
     """
-        TCPクライアントからメッセージを送信する
+        TCPクライアントからheaderを送信する
     """
     header = create_header(header_message, 0, 0)
     sock.send(header)
 
 def send_tcp_message(sock, message):
+    """
+        TCPクライアントからメッセージを送信する
+    """
     message = encode_message(message)
     sock.send(message)
 

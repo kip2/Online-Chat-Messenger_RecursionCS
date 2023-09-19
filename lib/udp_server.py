@@ -32,6 +32,7 @@ def startup_udp_server(server_address:str = SERVER_ADDRESS, server_port:str = No
     except (socket.timeout, ConnectionRefusedError):
         return
 
+# ----- test 
 def test_udp_class():
     sock, addr, port = startup_udp_server()
     print(f"socket = {sock}, address = {addr}, port = {port}")

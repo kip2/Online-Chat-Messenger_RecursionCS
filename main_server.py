@@ -253,15 +253,6 @@ def client_exit(sock, addr):
 #         print("Closing current connection")
 #         sock.close()
 
-if __name__ == "__main__":
-    chat_room()
-    # test_mes_udp()
-
-    # test_chat_room()
-    # main_tcp()
-    
-    # main_udp()
-
 # -------- test code ---------
 def test_chat_room():
 
@@ -280,3 +271,14 @@ def test_mes_udp():
         sock = serv.sock
 
         data, client_address = sock.recvfrom(4096)
+
+# ---------------------------
+
+if __name__ == "__main__":
+    chat_room()
+    # test_mes_udp()
+
+    # test_chat_room()
+    # main_tcp()
+    
+    # main_udp()
