@@ -1,8 +1,5 @@
 from lib.udp_server import * 
 
-# チャットルームの辞書配列
-chat_rooms= {}
-
 # メッセージフォーマット用のspace
 MESSAGE_SPACE = 3
 
@@ -22,7 +19,7 @@ class ChatClient:
 class ChatRoom:
     """
         field:
-            title:       チャットルームの名前
+            name:       チャットルームの名前
             max_member:  チャットルームの最大参加人数
             socket:      通信用socket
             address:     アドレス
@@ -36,9 +33,9 @@ class ChatRoom:
     # チャットメッセージ文字列整形用
     ljust_max = 0
     
-    def __init__(self, title: str, max_member: int):
+    def __init__(self, name: str, max_member: int):
         # validationがいる
-        self.title: str = title
+        self.name: str = name
         self.max_member: int = max_member
         self.room_socket_create()
 
@@ -99,7 +96,7 @@ class ChatRooms:
     _instance = None
 
     # chatrooms配列。singletonにより、ただ一つ管理されることが保証
-    chat_rooms = []
+    chat_rooms = {}
 
     # __new__を書き換えてsingletonに
     def __new__(cls):
@@ -116,26 +113,61 @@ class ChatRooms:
         """
             chatroomを登録する
         """
-        self.chat_rooms.append(room)
+        if room.name not in self.chat_rooms:
+            self.chat_rooms[room.name] = room
         
     def remove_room(self, room: ChatRoom):
         """
             指定されたchatroomの登録を削除する
         """
-        self.chat_rooms.remove(room)
+        if room.name in self.chat_rooms:
+            del self.chat_rooms[room.name]
+
+    def get_room(self, room_name:str):
+        """
+            roomの名前から、ルームを返す
+            listになければNoneを返す
+        """
+        if room_name in self.chat_rooms:
+            return self.chat_rooms[room_name]
+        else: return None
 
 def chat_room_create(room_name: str, max_member: int):
     """
         chat_roomを作成し、辞書に登録する
     """
+    chat_rooms = ChatRooms()
     chat_room = ChatRoom(room_name, max_member)
 
     # チャットルーム辞書にチャットルームを追加
-    chat_rooms[room_name] = chat_room
+    chat_rooms.append_room(chat_rooms)
     return chat_room
 
 
+# -------------------
 # ---- test code ----
+# -------------------
+
+def test_chatrooms_append():
+    room_list = ChatRooms()
+
+    # singleton room append test
+    room = ChatRoom("room1", 5)
+    assert "room1" ,room.name
+    room_list.append_room(room) 
+    assert "room1", room_list.chat_rooms[0].name
+
+def test_chatrroms_get():
+    room_list = ChatRooms()
+
+    # singleton room append test
+    room = ChatRoom("room1", 5)
+    assert room, room_list.chat_rooms["room1"]
+    assert room, room_list.get_room("room1")
+
+def test_char_room_create():
+    room = chat_room_create("room1", 5)
+    assert "room1" ,room.name
 
 def test_singleton_class():
     # singleton test
@@ -150,9 +182,9 @@ def test_chatrooms_append():
 
     # singleton room append test
     room = ChatRoom("room1", 5)
-    assert "room1" ,room.title
+    assert "room1" ,room.name
     room_list.append_room(room) 
-    assert "room1", room_list.chat_rooms[0].title
+    assert "room1", room_list.chat_rooms[0].name
 
 def test_chatrooms_remove():
     
@@ -195,7 +227,7 @@ def test_chatrooms_remove():
 def test_chat_room():
 
     room = ChatRoom("room1", 5)
-    print("room:", room, "name:", room.title)
+    print("room:", room, "name:", room.name)
     
     cl1 = ChatClient("taro", "address", 9001)
     print("client:", cl1, "name:", cl1.name)
@@ -226,28 +258,30 @@ def test_chat_room():
     print(room.ljust_max)
 
     # debug print
-    print("room name:", room.title, "room member:",[ x for x in room.client_list] )
+    print("room name:", room.name, "room member:",[ x for x in room.client_list] )
 
     # client exit room
     room.exit_client(cl1)
-    print("room name:", room.title, "room member:", [ x for x in room.client_list] )
+    print("room name:", room.name, "room member:", [ x for x in room.client_list] )
     room.exit_client(cl2)
     print(room.ljust_max)
-    print("room name:", room.title, "room member:", [ x for x in room.client_list] )
+    print("room name:", room.name, "room member:", [ x for x in room.client_list] )
     room.exit_client(cl3)
     print(room.ljust_max)
-    print("room name:", room.title, "room member:", [ x for x in room.client_list] )
+    print("room name:", room.name, "room member:", [ x for x in room.client_list] )
     room.exit_client(cl4)
     print(room.ljust_max)
-    print("room name:", room.title, "room member:", [ x for x in room.client_list] )
+    print("room name:", room.name, "room member:", [ x for x in room.client_list] )
     room.exit_client(cl5)
     print(room.ljust_max)
-    print("room name:", room.title, "room member:", [ x for x in room.client_list] )
+    print("room name:", room.name, "room member:", [ x for x in room.client_list] )
     
 if __name__ == "__main__":
 
     # test_singleton_class()
     
-    # test_chatrooms_remove()
+    test_chatrooms_remove()
+    # test_char_room_create()
+    # test_chatrooms_append()
 
     pass
