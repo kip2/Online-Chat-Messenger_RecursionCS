@@ -37,6 +37,7 @@ def send_server_message(connection, message):
     """
     connection.send(message.encode(CHARA_CODE))
 
+# ----- test case -----
 def test_tcp_class():
     sock, addr, port = startup_tcp_server()
     print(f"socket = {sock}, address = {addr}, port = {port}")

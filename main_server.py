@@ -4,6 +4,7 @@ import threading
 import ndjson
 from  lib.tcp_server import *
 from  lib.udp_server import *
+from lib.chat_room import *
 
 import lib
 
@@ -17,6 +18,9 @@ SERVER_PORT = lib._address_config.SERVER_PORT
 # client list
 clients = []
 # todo: clientsの扱いをどうするか。キューで管理するのかどうか
+
+# chat room list
+chat_rooms = ChatRooms()
 
 def create_room():
     client_socket = clients[0][0]
@@ -39,34 +43,37 @@ def create_room():
     pass
 
 def header_parsing(header):
+    """
+        headerを解析する
+    """
     client_request = int.from_bytes(header[:1], "big")
     message_length = int.from_bytes(header[1:3], "big")
     data_length = int.from_bytes(header[4:8], "big")
     return (client_request, message_length, data_length)
 
-def broadcast_client(sock, addr):
-    # todo : まだ　clientへのbroadcat関数
-    while True:
-        try:
-            data = sock.recv(4096)
-            if data == b"":
-                break
-            print("$ say client:{}".format(addr))
-            # 受信データを全クライアントに送信
-            for client in clients:
-                client[0].send(data)
+# def broadcast_client(sock, addr):
+#     # todo : まだ　clientへのbroadcat関数
+#     while True:
+#         try:
+#             data = sock.recv(4096)
+#             if data == b"":
+#                 break
+#             print("$ say client:{}".format(addr))
+#             # 受信データを全クライアントに送信
+#             for client in clients:
+#                 client[0].send(data)
 
-        except ConnectionResetError:
-            break
-        except OSError as e:
-            if e.errno == 57:
-                break
-    # クライアントリストから削除
-    clients.remove((sock,addr))
-    print("- close client:{}".format(addr))
+#         except ConnectionResetError:
+#             break
+#         except OSError as e:
+#             if e.errno == 57:
+#                 break
+#     # クライアントリストから削除
+#     clients.remove((sock,addr))
+#     print("- close client:{}".format(addr))
 
-    sock.shutdown(socket.SHUT_WR)
-    sock.close()
+#     sock.shutdown(socket.SHUT_WR)
+#     sock.close()
 
 def send_room_list():
     clients[0][0].send(b"ROOM LIST!!!")
@@ -189,7 +196,6 @@ def udp_broadcast_message(sock, message):
     """
     for client_address in chat_clients:
         send_udp_message(sock, client_address, message)
-        # client[0].send(data)
 
 def send_udp_message(sock, client_address, message):
     """
@@ -198,11 +204,14 @@ def send_udp_message(sock, client_address, message):
     sock.sendto(message, client_address)
 
 def client_room_exit(addr):
-    print("退室予定：", addr)
+    """
+        clientをルームから退室させる
+    """
+    # print("退室予定：", addr)
     chat_clients.remove(addr)
-    print("退室しました")
+    # print("退室しました")
 
-def client_exit(sock, addr):
+def client_exit_main_server(sock, addr):
     """
         clientをメインサーバから退室させる
     """
