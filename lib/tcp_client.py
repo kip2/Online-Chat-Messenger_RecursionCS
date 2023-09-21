@@ -37,7 +37,7 @@ def send_tcp_header(sock, header_message):
     """
         TCPクライアントからheaderを送信する
     """
-    header = create_header(header_message, 0, 0)
+    header = request_header(header_message, 0, 0)
     sock.send(header)
 
 def send_tcp_message(sock, message):

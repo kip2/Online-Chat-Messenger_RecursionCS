@@ -3,6 +3,8 @@ from lib.udp_server import *
 # メッセージフォーマット用のspace
 MESSAGE_SPACE = 3
 
+chat_clients = []
+
 class ChatClient:
     """
         field:
@@ -16,7 +18,7 @@ class ChatClient:
         self.address: str = address
         self.port: str = port
 
-class ChatRoom:
+class ChatRoom(UDP_Server):
     """
         field:
             name:       チャットルームの名前
@@ -27,6 +29,7 @@ class ChatRoom:
 
             client_list: 入室しているクライアント情報
             ljust_max:   チャットメッセージの文字列整形管理用
+        #todo: 継承したので、UDP_Serverの挙動を持っている
     """
     # client HashMap
     client_list = {}
@@ -34,17 +37,36 @@ class ChatRoom:
     ljust_max = 0
     
     def __init__(self, name: str, max_member: int):
-        # validationがいる
+        # todo: validationがいる
+        super().__init__()
         self.name: str = name
         self.max_member: int = max_member
-        self.room_socket_create()
+        # self.room_socket_create()
 
-    def __del__(self):
-        """
-            デストラクター
-            pythonプログラム終了時に動作
-        """
-        self.sock.close()
+    # 
+    def finalize(self):
+        pass
+
+    def is_emplty():
+        pass
+
+    # def __del__(self):
+    #     """
+    #         デストラクター
+    #         pythonプログラム終了時に動作
+    #     """
+    #     print("destracter")
+    #     super().__exit__()
+        # self.sock.close()
+
+    # # with文のため
+    # def __enter__(self):
+    #     return self
+    
+    # with文のため
+    # def __exit__(self, *args):
+        # super().__exit__()
+        # self.sock.close()
 
     def room_socket_create(self):
         """
@@ -52,19 +74,37 @@ class ChatRoom:
         """
         self.sock, self.address, self.port = startup_udp_server()
 
-    def create_client_and_enter_chat_room(self, name, address, port):
+    def create_client_and_enter_chat_room(self, name: str, address: str, port: int):
         """
             クライエント作成と入室を同時にする
         """
         chat_client = ChatClient(name, address, port)
         self.enter_chat_room(chat_client)
 
+    def has_chat_client(self, chat_client: ChatClient) -> bool:
+        """
+            このroomにクライアントが存在するか確認
+        """
+        if chat_client.name in self.client_list:
+            return True
+        return False
+
     def enter_chat_room(self, chat_client: ChatClient):
         """
-            roomに入室したクライエントを登録する
+            roomに初めて入室したクライエントを登録する
         """
-        self.generate_message_format(chat_client.name)
-        self.client_list[chat_client.name] = chat_client
+        if not self.has_chat_client(chat_client):
+            # メッセージ整形用の数字を計算
+            self.generate_message_format(chat_client.name)
+            # クライアントを登録する
+            self.client_list[chat_client.name] = chat_client
+
+    def udp_message_broadcast(self, message):
+        """
+            roomのclientへのブロードキャスト
+        """
+        for client_address in self.client_list:
+            send_udp_message(self.sock, client_address, message)
     
     def exit_client(self, chat_client: ChatClient):
         """
@@ -143,6 +183,25 @@ def chat_room_create(room_name: str, max_member: int):
     chat_rooms.append_room(chat_rooms)
     return chat_room
 
+
+def udp_message_broadcast(sock, message):
+    """
+        roomのclientへのブロードキャスト
+    """
+    for client_address in chat_clients:
+        send_udp_message(sock, client_address, message)
+
+def send_udp_message(sock, client_address, message):
+    """
+        clientにudpメッセージを送信する
+    """
+    sock.sendto(message, client_address)
+
+def client_room_exit(addr):
+    """
+        clientをルームから退室させる
+    """
+    chat_clients.remove(addr)
 
 # -------------------
 # ---- test code ----

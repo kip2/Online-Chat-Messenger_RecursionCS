@@ -14,7 +14,7 @@ class TCP_Server:
     def __exit__(self, *args):
         self.sock.close()
 
-def startup_tcp_server(server_address:str = SERVER_ADDRESS, server_port:int = None) -> tuple:
+def startup_tcp_server(server_address:str = SERVER_ADDRESS, server_port:int = None, listen=5) -> tuple:
     """
         TCPサーバーを立てる関数
         connect用のsocketと、(IP_address, PORT)のタプルを返す
@@ -26,7 +26,7 @@ def startup_tcp_server(server_address:str = SERVER_ADDRESS, server_port:int = No
     try:
         sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_STREAM) 
         sock.bind((server_address, server_port))
-        sock.listen(1)
+        sock.listen(listen)
         return (sock, server_address, server_port)
     except (socket.timeout, ConnectionRefusedError):
         return
@@ -47,5 +47,13 @@ def test_tcp_class():
         print(t)
     
 
+def test_startup_tcp_server():
+    socket1, addr1, port1 = startup_tcp_server()
+    socket2, addr2, port2 = startup_tcp_server()
+    socket3, addr3, port3 = startup_tcp_server()
+    socket4, addr4, port4 = startup_tcp_server()
+    socket5, addr5, port5 = startup_tcp_server()
+
 if __name__ == "__main__":
-    test_tcp_class()
+    # test_tcp_class()
+    test_startup_tcp_server()

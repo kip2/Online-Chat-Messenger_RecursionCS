@@ -19,6 +19,9 @@ def printd(byte_data):
     print(byte_data.decode(CHARA_CODE))
 
 def mes_decode(byte_data):
+    """
+        受信したメッセージ(byte)をデコードする
+    """
     return byte_data.decode(CHARA_CODE)
 
 def recv_data(sock, recv_size):
@@ -52,7 +55,7 @@ def test_chat_room():
         thread.start()
         
         # header送信テスト中
-        send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, CREATE_ROOM)
+        # send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, CREATE_ROOM)
 
         # データ入力ループ
         while True:
@@ -82,6 +85,7 @@ def main_tcp():
         tcp通信のmain関数
     """
     sock, address, port= startup_tcp_client(SERVER_ADDRESS, SERVER_PORT)
+    print(sock, address, port)
 
     # データ受信をサブスレッドで実行
     thread = threading.Thread(target=recv_data, args=(sock, RECV_SIZE,))
@@ -112,6 +116,18 @@ def main_tcp():
         print("shutdown main")
         sock.shutdown(socket.SHUT_RD)
         sock.close()
+
+def test_multi_thread_tcp_client():
+    thread1 = threading.Thread(target=main_tcp)
+    thread1.start()
+    thread2 = threading.Thread(target=main_tcp)
+    thread2.start()
+    thread3 = threading.Thread(target=main_tcp)
+    thread3.start()
+    thread4 = threading.Thread(target=main_tcp)
+    thread4.start()
+    thread5 = threading.Thread(target=main_tcp)
+    thread5.start()
     
 
 def main_udp():
@@ -148,15 +164,14 @@ def main_udp():
     finally:
         print("shutdown main")
         sock.close()
-    
-
 
 if __name__ == "__main__":
     # main_tcp()
     # main_udp()
-    test_chat_room()
+    # test_chat_room()
 
     # cipher_suite = Fernet(SECRET_KEY)
+    test_multi_thread_tcp_client()
     
     # cr = create_information_new_chat_room()
     # print(cr)
