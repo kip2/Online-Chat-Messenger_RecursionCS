@@ -171,7 +171,7 @@ if __name__ == "__main__":
     # test_chat_room()
 
     # cipher_suite = Fernet(SECRET_KEY)
-    test_multi_thread_tcp_client()
+    # test_multi_thread_tcp_client()
     
     # cr = create_information_new_chat_room()
     # print(cr)

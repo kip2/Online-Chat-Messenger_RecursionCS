@@ -103,56 +103,6 @@ def send_client_exit_message():
 def send_exit_message():
     clients[0][0].send(b"BYE!!!")
 
-def main_tcp():
-
-    print("Starting up tcp on {} port {}".format(SERVER_ADDRESS, SERVER_PORT))
-
-    sock, addr, port = startup_tcp_server(SERVER_ADDRESS, SERVER_PORT)
-    print(f"socket = {sock}, address = {addr}, port = {port}")
-
-    try:
-        while True:
-            try:
-                connection, client_address = sock.accept()
-                clients.append((connection, client_address))
-                print("connection from", client_address)
-                while True:
-                    data = connection.recv(8)
-                    # # headerからの抽出
-                    # client_request = int.from_bytes(header[:1], "big")
-                    # message_length = int.from_bytes(header[1:3], "big")
-                    # data_length = int.from_bytes(header[4:8], "big")
-
-                    # headerの読み取り(header4バイト)
-                    # clientが何を求めているかを受け取る
-                    client_request, message_length, data_length = header_parsing(data)
-
-                    print('Received header from client. Byte lengths: Client request {}, message length {}, Data Length {}'.format(client_request,message_length,data_length))
-
-                    # headerの種類によって動作を変える
-                    if client_request == lib._header.CREATE_ROOM:
-                        create_room()
-                    elif client_request == lib._header.REQUEST_ROOM_LIST:
-                        send_room_list()
-                    elif client_request == lib._header.REQUEST_LOG_FILE:
-                        send_log_file()
-                    elif client_request == lib._header.ENTER_ROOM:
-                        allow_enter()
-                    elif client_request == lib._header.SEND_MESSAGE:
-                        receive_message()
-                    elif client_request == lib._header.CLIENT_EXIT_MESSAGE:
-                        send_client_exit_message()
-                    elif client_request == lib._header.EXIT_MESSAGE:
-                        send_exit_message()
-                        break
-            except Exception as e:
-                print("Error: " + str(e))
-                break
-    except KeyboardInterrupt:
-        pass
-    finally:
-        print("Closing current connection")
-        sock.close()
 
 # todo: まだ
 def startup_chat_room(room_name: str, room_maximum_people: int):
@@ -362,8 +312,60 @@ def test_mes_udp():
         data, client_address = sock.recvfrom(4096)
 
 # ---------------------------
+def main_tcp():
+
+    print("Starting up tcp on {} port {}".format(SERVER_ADDRESS, SERVER_PORT))
+
+    sock, addr, port = startup_tcp_server(SERVER_ADDRESS, SERVER_PORT)
+    print(f"socket = {sock}, address = {addr}, port = {port}")
+
+    try:
+        while True:
+            try:
+                connection, client_address = sock.accept()
+                clients.append((connection, client_address))
+                print("connection from", client_address)
+                while True:
+                    data = connection.recv(8)
+                    # # headerからの抽出
+                    # client_request = int.from_bytes(header[:1], "big")
+                    # message_length = int.from_bytes(header[1:3], "big")
+                    # data_length = int.from_bytes(header[4:8], "big")
+
+                    # headerの読み取り(header4バイト)
+                    # clientが何を求めているかを受け取る
+                    client_request, message_length, data_length = header_parsing(data)
+
+                    print('Received header from client. Byte lengths: Client request {}, message length {}, Data Length {}'.format(client_request,message_length,data_length))
+
+                    # headerの種類によって動作を変える
+                    if client_request == lib._header.CREATE_ROOM:
+                        create_room()
+                    elif client_request == lib._header.REQUEST_ROOM_LIST:
+                        send_room_list()
+                    elif client_request == lib._header.REQUEST_LOG_FILE:
+                        send_log_file()
+                    elif client_request == lib._header.ENTER_ROOM:
+                        allow_enter()
+                    elif client_request == lib._header.SEND_MESSAGE:
+                        receive_message()
+                    elif client_request == lib._header.CLIENT_EXIT_MESSAGE:
+                        send_client_exit_message()
+                    elif client_request == lib._header.EXIT_MESSAGE:
+                        send_exit_message()
+                        break
+            except Exception as e:
+                print("Error: " + str(e))
+                break
+    except KeyboardInterrupt:
+        pass
+    finally:
+        print("Closing current connection")
+        sock.close()
+
 
 if __name__ == "__main__":
+
     # startup_chat_room("room1", 5)
     # chat_room()
     # test_mes_udp()
@@ -373,3 +375,55 @@ if __name__ == "__main__":
     
     # main_udp()
     # receive_udp_request_message()
+
+# ---- 保管用 -----
+# def main_tcp():
+
+#     print("Starting up tcp on {} port {}".format(SERVER_ADDRESS, SERVER_PORT))
+
+#     sock, addr, port = startup_tcp_server(SERVER_ADDRESS, SERVER_PORT)
+#     print(f"socket = {sock}, address = {addr}, port = {port}")
+
+#     try:
+#         while True:
+#             try:
+#                 connection, client_address = sock.accept()
+#                 clients.append((connection, client_address))
+#                 print("connection from", client_address)
+#                 while True:
+#                     data = connection.recv(8)
+#                     # # headerからの抽出
+#                     # client_request = int.from_bytes(header[:1], "big")
+#                     # message_length = int.from_bytes(header[1:3], "big")
+#                     # data_length = int.from_bytes(header[4:8], "big")
+
+#                     # headerの読み取り(header4バイト)
+#                     # clientが何を求めているかを受け取る
+#                     client_request, message_length, data_length = header_parsing(data)
+
+#                     print('Received header from client. Byte lengths: Client request {}, message length {}, Data Length {}'.format(client_request,message_length,data_length))
+
+#                     # headerの種類によって動作を変える
+#                     if client_request == lib._header.CREATE_ROOM:
+#                         create_room()
+#                     elif client_request == lib._header.REQUEST_ROOM_LIST:
+#                         send_room_list()
+#                     elif client_request == lib._header.REQUEST_LOG_FILE:
+#                         send_log_file()
+#                     elif client_request == lib._header.ENTER_ROOM:
+#                         allow_enter()
+#                     elif client_request == lib._header.SEND_MESSAGE:
+#                         receive_message()
+#                     elif client_request == lib._header.CLIENT_EXIT_MESSAGE:
+#                         send_client_exit_message()
+#                     elif client_request == lib._header.EXIT_MESSAGE:
+#                         send_exit_message()
+#                         break
+#             except Exception as e:
+#                 print("Error: " + str(e))
+#                 break
+#     except KeyboardInterrupt:
+#         pass
+#     finally:
+#         print("Closing current connection")
+#         sock.close()

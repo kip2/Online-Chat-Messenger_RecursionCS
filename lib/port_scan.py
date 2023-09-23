@@ -37,14 +37,14 @@ def is_udp_port_open(host:str, port: int) -> bool:
     except OSError:
         return False  
 
-def available_tcp_port(host:str=SERVER_HOST,  range_min=PORT_RANEG_MIN, range_max=PORT_RANEG_MAX) -> int:
-    """
-        portのrangeの範囲から、使えるtcpのport番号を返す
-    """
-    for i in range(range_min, range_max):
-        if is_tcp_port_open(host, i) == False:
-            return i
-    return None
+# def available_tcp_port(host:str=SERVER_HOST,  range_min=PORT_RANEG_MIN, range_max=PORT_RANEG_MAX) -> int:
+#     """
+#         portのrangeの範囲から、使えるtcpのport番号を返す
+#     """
+#     for i in range(range_min, range_max):
+#         if is_tcp_port_open(host, i) == False:
+#             return i
+#     return None
 
 def available_udp_port(host:str=CLIENT_HOST,  range_min=PORT_RANEG_MIN, range_max=PORT_RANEG_MAX) -> int:
     """

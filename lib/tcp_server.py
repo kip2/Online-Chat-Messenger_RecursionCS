@@ -19,9 +19,9 @@ def startup_tcp_server(server_address:str = SERVER_ADDRESS, server_port:int = No
         TCPサーバーを立てる関数
         connect用のsocketと、(IP_address, PORT)のタプルを返す
     """
-    # portが指定されていなければ自動で生成
-    if server_port == None: 
-        server_port = available_tcp_port(server_address)
+    # # portが指定されていなければ自動で生成
+    # if server_port == None: 
+    #     server_port = available_tcp_port(server_address)
 
     try:
         sock = socket.socket(NETWORK_SOCKET_TYPE, socket.SOCK_STREAM) 
