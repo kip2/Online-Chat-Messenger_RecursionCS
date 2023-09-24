@@ -402,7 +402,7 @@ def broadcast_chatroom():
                     # clientがroomに存在すればbroadcast
                     if room.has_chat_client(client):
                         message = "test broadcast"
-                        broadcast_chat_message(sock, room, client_name, message)
+                        room.udp_message_broadcast(sock, client_name, message)
                     else:
                         # todo: testまだ
                         err_message = "入室していません"
