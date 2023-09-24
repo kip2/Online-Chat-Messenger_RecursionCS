@@ -330,6 +330,7 @@ def main_tcp():
         print("Closing current connection")
         sock.close()
 
+
 def broadcast_chatroom():
     print("Starting up udp on {} port {}".format(SERVER_ADDRESS, SERVER_PORT))
 
@@ -341,6 +342,8 @@ def broadcast_chatroom():
     max_member = 5
     room = ChatRoom(name, max_member)
     chat_rooms.append_room(room)
+    mock_rooms()
+    l = chat_rooms.get_room_list()
 
     try:
         while True:

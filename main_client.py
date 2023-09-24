@@ -10,7 +10,7 @@ from lib.client_method import *
 from lib._address_config import *
 from lib._header import *
 
-RECV_SIZE = 1024
+RECV_SIZE = 4096
 
 def printd(byte_data):
     """

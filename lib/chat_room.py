@@ -202,6 +202,12 @@ class ChatRooms:
         if room_name in self.chat_rooms:
             return self.chat_rooms[room_name]
         else: return None
+    
+    def get_room_list(self) -> list:
+        room_list = []
+        for k in self.chat_rooms.keys():
+            room_list.append(k)
+        return room_list
 
 def chat_room_create(room_name: str, max_member: int):
     """
