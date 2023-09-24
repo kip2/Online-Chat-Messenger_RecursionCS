@@ -32,6 +32,20 @@ def startup_udp_server(server_address:str = SERVER_ADDRESS, server_port:str = No
     except (socket.timeout, ConnectionRefusedError):
         return
 
+def send_udp_message(sock, client_address, message):
+    """
+        clientにudpメッセージを送信する
+    """
+    message = encode_message(message)
+    sock.sendto(message, client_address)
+
+def encode_message( message: str) -> str:
+    """
+        utf-8 の 
+        str -> byte へのエンコード
+    """
+    return message.encode("utf-8")
+
 # ----- test 
 def test_udp_class():
     sock, addr, port = startup_udp_server()

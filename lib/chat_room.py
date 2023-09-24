@@ -30,8 +30,6 @@ class ChatRoom():
         field:
             name:       チャットルームの名前
             max_member:  チャットルームの最大参加人数
-            address:     アドレス
-            port:        ポート番号
 
             client_list: 入室しているクライアント情報
             ljust_max:   チャットメッセージの文字列整形管理用
@@ -93,28 +91,35 @@ class ChatRoom():
             return True
         return False
 
-    def enter_chat_room(self, chat_client: ChatClient):
+    def enter_chat_room(self, chat_client: ChatClient) -> bool:
         """
             roomに初めて入室したクライエントを登録する
         """
+        if self.max_member <= len(self.client_list):
+            return False
         if not self.has_chat_client(chat_client):
             # メッセージ整形用の数字を計算
             self.generate_message_format(chat_client.name)
             # クライアントを登録する
             self.client_list[chat_client.name] = chat_client
+            return True
+        return False
     
-    def create_send_message(self, name, message):
+    def create_send_message(self, name: str, message: str) -> str:
+        """
+            整形したメッセージ文章を送信
+        """
         space = (self.ljust_max - len(name)) * " "
         return self.encode_message(name + space + ":" + message)
 
-    def encode_message(self, message: str):
+    def encode_message(self, message: str) -> str:
         """
             utf-8 の 
             str -> byte へのエンコード
         """
         return message.encode("utf-8")
 
-    def udp_message_broadcast(self, sock, name, message):
+    def udp_message_broadcast(self, sock, name: str, message:str):
         """
             roomのclientへのブロードキャスト
         """
