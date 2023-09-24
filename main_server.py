@@ -379,29 +379,40 @@ def broadcast_chatroom():
                 # messageのデコード
                 data = decode_message(data)
 
-                # client_request, message_length, data_length = header_parsing(data)
-
-                # print('Received header from client. Byte lengths: Client request {}, message length {}, Data Length {}'.format(client_request,message_length,data_length))
-
-                # mock_member(room)
-
                 a,p  = client_address
-                n = "test太郎" + str(p)
 
-                # enterできないならそのメッセージを元のクライアントに返す
-                if not room.enter_chat_room(ChatClient(n, a, p)):
-                    err_message = "入室できませんでした"
-                    send_udp_message(sock, client_address,  err_message)
-                    continue
-                
                 room_name, client_name = message_parsing(data)
+                client = ChatClient(client_name, a, p)
 
+                # roomの存在をチェック
                 if not chat_rooms.has_chat_room(room_name):
                     err_message = "そのようなroomは存在しません"
                     send_error_message(sock, client_address,err_message)
                     continue
 
+                # roomを取得する
+                room = chat_rooms.get_room(room_name)
+
+                # clientがroomに存在すればbroadcast
+                if room.has_chat_client(client):
+                    message = "test broadcast"
+                    broadcast_chat_message(sock, room, client_name, message)
+                else:
+                    # そうでなければ入室処理
+                    if not room.enter_chat_room(client):
+                        # 例外処理
+                        err_message = "入室できませんでした"
+                        send_error_message(sock, client_address,  err_message)
+                        continue
+                    else:
+                        # 入室できたならbroadcast
+                        message = "test broadcast"
+                        broadcast_chat_message(sock, room, client_name, message)
+                        
+
+
                 # mes = "test message @ " + str(p)
+                
                 # room.udp_message_broadcast(sock, n, mes)
 
                 # # # headerの種類によって動作を変える
@@ -428,6 +439,10 @@ def broadcast_chatroom():
     finally:
         print("Closing current connection")
         sock.close()
+
+def broadcast_chat_message(sock, room, client_name, message):
+    # room = chat_rooms.get_room(room_name)
+    room.udp_message_broadcast(sock, client_name, message)
 
 def send_error_message(sock, client_address:tuple, message:str):
     message = encode_message(message)

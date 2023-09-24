@@ -110,7 +110,7 @@ class ChatRoom():
             整形したメッセージ文章を送信
         """
         space = (self.ljust_max - len(name)) * " "
-        return self.encode_message(name + space + ":" + message)
+        return self.encode_message(name + space + ":" + " " + message)
 
     def encode_message(self, message: str) -> str:
         """
@@ -194,7 +194,7 @@ class ChatRooms:
         if room.name in self.chat_rooms:
             del self.chat_rooms[room.name]
 
-    def get_room(self, room_name:str):
+    def get_room(self, room_name:str) -> ChatRoom:
         """
             roomの名前から、ルームを返す
             listになければNoneを返す

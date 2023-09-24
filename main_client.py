@@ -24,18 +24,30 @@ def mes_decode(byte_data):
     """
     return byte_data.decode(CHARA_CODE)
 
+def flush_display(log):
+    print("=====================")
+    print("log")
+    print()
+    print(log)
+    print("---------------------")
+    print("Enter your message ")
+
+    
 def recv_data(sock, recv_size):
     
     """
         データ受信用のthread
     """
+    log = ""
     try:
         while True:
             try:
                 data = sock.recv(recv_size)
                 if data == b"":
                     break
-                printd(data)
+                # printd(data)
+                log += mes_decode(data) + "\n"
+                flush_display(log)
             except ConnectionResetError:
                 break
             except OSError as e:
@@ -146,7 +158,7 @@ def main_udp():
     # データ入力ループ
     try:
         while True:
-            data = input("> ")
+            data = input("Enter your message \n")
             if data == "exit":
                 send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, CLIENT_EXIT_MESSAGE)
                 break
@@ -166,7 +178,6 @@ def main_udp():
         sock.close()
 
 def chat_client():
-    
     sock, address, port = startup_udp_client(CLIENT_ADDRESS)
     # データ受信をサブスレッドで実行
     thread = threading.Thread(target=recv_data, args=(sock, RECV_SIZE, ))
@@ -177,7 +188,7 @@ def chat_client():
     # データ入力ループ
     try:
         while True:
-            data = input("> ")
+            data = input()
             if data == "exit":
                 send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, CLIENT_EXIT_MESSAGE)
                 break
