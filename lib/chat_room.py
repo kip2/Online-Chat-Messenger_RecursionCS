@@ -41,16 +41,8 @@ class ChatRoom():
     
     def __init__(self, name: str, max_member: int):
         # todo: validationがいる
-        # super().__init__()
         self.name: str = name
         self.max_member: int = max_member
-
-    # 
-    def finalize(self):
-        pass
-
-    def is_emplty():
-        pass
 
     # def __del__(self):
     #     """
@@ -112,13 +104,6 @@ class ChatRoom():
         space = (self.ljust_max - len(name)) * " "
         return name + space + ":" + " " + message
 
-    # def encode_message(self, message: str) -> str:
-    #     """
-    #         utf-8 の 
-    #         str -> byte へのエンコード
-    #     """
-    #     return message.encode("utf-8")
-
     def udp_message_broadcast(self, sock, name: str, message:str):
         """
             roomのclientへのブロードキャスト
@@ -169,6 +154,19 @@ class ChatRooms:
     # 初期化処理
     def initialize(self):
         pass
+
+    def convert_json_data(self):
+        """
+            room_listをjsonデータで使用する形式に変換する
+        """
+        json_dict = {}
+        for room_name, room in self.chat_rooms.items():
+            json_dict[room_name] = room.max_member
+        return json_dict
+    
+    def deserialize_json_data(self, json_dict: dict):
+        pass
+
 
     def has_chat_room(self, room_name:str) -> bool:
         """

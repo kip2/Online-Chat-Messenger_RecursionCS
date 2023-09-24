@@ -180,6 +180,12 @@ def mock_member(room: ChatRoom):
     room.enter_chat_room(ChatClient("mock太郎"+str(10004), '127.0.0.1', 10004))
     return 
 
+def test_conver_json_data():
+    mock_rooms()
+    d = chat_rooms.convert_json_data()
+    print(d)
+
+    
 def test_rooms_append_room():
     mock_rooms()
 
@@ -201,4 +207,5 @@ if __name__ == "__main__":
     # test_has_chat_room()
     # test_rooms_append_room()
     # broadcast_chatroom()
-    chatroom_server()
+    # chatroom_server()
+    test_conver_json_data()
