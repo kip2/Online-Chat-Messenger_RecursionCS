@@ -1,4 +1,3 @@
-import socket
 import sys
 import threading
 from lib.port_scan import *

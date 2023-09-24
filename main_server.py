@@ -13,10 +13,6 @@ SERVER_ADDRESS = lib._address_config.SERVER_ADDRESS
 # server port
 SERVER_PORT = lib._address_config.SERVER_PORT
 
-# client list
-clients = []
-# todo: clientsの扱いをどうするか。キューで管理するのかどうか
-
 # chat room list
 chat_rooms = ChatRooms()
 
