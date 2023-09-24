@@ -208,12 +208,6 @@ def chat_room():
                 print("Error: " + str(e))
                 break
 
-def udp_message_broadcast(sock, message):
-    """
-        roomのclientへのブロードキャスト
-    """
-    for client_address in chat_clients:
-        send_udp_message(sock, client_address, message)
 
 # todo メインサーバからの退室処理が不完全
 def client_exit_main_server(sock, addr):
@@ -440,13 +434,6 @@ def broadcast_chatroom():
         print("Closing current connection")
         sock.close()
 
-def broadcast_chat_message(sock, room, client_name, message):
-    # room = chat_rooms.get_room(room_name)
-    room.udp_message_broadcast(sock, client_name, message)
-
-def send_error_message(sock, client_address:tuple, message:str):
-    message = encode_message(message)
-    send_udp_message(sock, client_address, message)
     
 def message_parsing(message):
     message = message.split(":")

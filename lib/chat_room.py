@@ -110,14 +110,14 @@ class ChatRoom():
             整形したメッセージ文章を送信
         """
         space = (self.ljust_max - len(name)) * " "
-        return self.encode_message(name + space + ":" + " " + message)
+        return name + space + ":" + " " + message
 
-    def encode_message(self, message: str) -> str:
-        """
-            utf-8 の 
-            str -> byte へのエンコード
-        """
-        return message.encode("utf-8")
+    # def encode_message(self, message: str) -> str:
+    #     """
+    #         utf-8 の 
+    #         str -> byte へのエンコード
+    #     """
+    #     return message.encode("utf-8")
 
     def udp_message_broadcast(self, sock, name: str, message:str):
         """
@@ -214,25 +214,25 @@ def chat_room_create(room_name: str, max_member: int):
     chat_rooms.append_room(chat_rooms)
     return chat_room
 
+def broadcast_chat_message(sock, room: ChatRoom, client_name, message):
+    room.udp_message_broadcast(sock, client_name, message)
 
-def udp_message_broadcast(sock, message):
-    """
-        roomのclientへのブロードキャスト
-    """
-    for client_address in chat_clients:
-        send_udp_message(sock, client_address, message)
+def send_error_message(sock, client_address:tuple, message:str):
+    send_udp_message(sock, client_address, message)
 
-def send_udp_message(sock, client_address, message):
-    """
-        clientにudpメッセージを送信する
-    """
-    sock.sendto(message, client_address)
+# def udp_message_broadcast(sock, message):
+#     """
+#         roomのclientへのブロードキャスト
+#     """
+#     for client_address in chat_clients:
+#         send_udp_message(sock, client_address, message)
 
-def client_room_exit(addr):
-    """
-        clientをルームから退室させる
-    """
-    chat_clients.remove(addr)
+
+# def client_room_exit(addr):
+#     """
+#         clientをルームから退室させる
+#     """
+#     chat_clients.remove(addr)
 
 # -------------------
 # ---- test code ----

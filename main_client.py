@@ -26,7 +26,7 @@ def mes_decode(byte_data):
 
 def flush_display(log):
     print("=====================")
-    print("log")
+    print("----- log ------")
     print()
     print(log)
     print("---------------------")
