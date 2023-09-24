@@ -17,19 +17,24 @@ class ChatClient:
         self.name: str = name
         self.address: str = address
         self.port: str = port
+    
+    def get_address(self):
+        """
+            addressをタプルに直して返す
+            message送信用
+        """
+        return (self.address, self.port)
 
-class ChatRoom(UDP_Server):
+class ChatRoom():
     """
         field:
             name:       チャットルームの名前
             max_member:  チャットルームの最大参加人数
-            socket:      通信用socket
             address:     アドレス
             port:        ポート番号
 
             client_list: 入室しているクライアント情報
             ljust_max:   チャットメッセージの文字列整形管理用
-        #todo: 継承したので、UDP_Serverの挙動を持っている
     """
     # client HashMap
     client_list = {}
@@ -38,10 +43,9 @@ class ChatRoom(UDP_Server):
     
     def __init__(self, name: str, max_member: int):
         # todo: validationがいる
-        super().__init__()
+        # super().__init__()
         self.name: str = name
         self.max_member: int = max_member
-        # self.room_socket_create()
 
     # 
     def finalize(self):
@@ -68,11 +72,11 @@ class ChatRoom(UDP_Server):
         # super().__exit__()
         # self.sock.close()
 
-    def room_socket_create(self):
-        """
-            chatroomのサーバーを作成する
-        """
-        self.sock, self.address, self.port = startup_udp_server()
+    # def room_socket_create(self):
+    #     """
+    #         chatroomのサーバーを作成する
+    #     """
+    #     self.sock, self.address, self.port = startup_udp_server()
 
     def create_client_and_enter_chat_room(self, name: str, address: str, port: int):
         """
@@ -98,13 +102,25 @@ class ChatRoom(UDP_Server):
             self.generate_message_format(chat_client.name)
             # クライアントを登録する
             self.client_list[chat_client.name] = chat_client
+    
+    def create_send_message(self, name, message):
+        space = (self.ljust_max - len(name)) * " "
+        return self.encode_message(name + space + ":" + message)
 
-    def udp_message_broadcast(self, message):
+    def encode_message(self, message: str):
+        """
+            utf-8 の 
+            str -> byte へのエンコード
+        """
+        return message.encode("utf-8")
+
+    def udp_message_broadcast(self, sock, name, message):
         """
             roomのclientへのブロードキャスト
         """
-        for client_address in self.client_list:
-            send_udp_message(self.sock, client_address, message)
+        message = self.create_send_message(name, message)
+        for client in self.client_list.values():
+            send_udp_message(sock, client.get_address(), message)
     
     def exit_client(self, chat_client: ChatClient):
         """
@@ -339,7 +355,7 @@ if __name__ == "__main__":
 
     # test_singleton_class()
     
-    test_chatrooms_remove()
+    # test_chatrooms_remove()
     # test_char_room_create()
     # test_chatrooms_append()
 

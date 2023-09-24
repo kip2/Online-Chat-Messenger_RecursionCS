@@ -363,15 +363,80 @@ def main_tcp():
         print("Closing current connection")
         sock.close()
 
+def broadcast_chatroom():
+    print("Starting up udp on {} port {}".format(SERVER_ADDRESS, SERVER_PORT))
+
+    sock, addr, port = startup_udp_server(SERVER_ADDRESS, SERVER_PORT)
+    print(f"socket = {sock}, address = {addr}, port = {port}")
+
+    # roomの作成
+    name = "room1"
+    max_member = 5
+    room = ChatRoom(name, max_member)
+
+    try:
+        while True:
+            try:
+                data, client_address = sock.recvfrom(4096)
+                print("connection from", client_address)
+
+                client_request, message_length, data_length = header_parsing(data)
+
+
+                print('Received header from client. Byte lengths: Client request {}, message length {}, Data Length {}'.format(client_request,message_length,data_length))
+
+                a,p  = client_address
+                n = "test太郎" + str(p)
+                room.enter_chat_room(ChatClient(n, a, p))
+
+                mes = "test message @ " + str(p)
+                room.udp_message_broadcast(sock, n, mes)
+
+                # # # headerの種類によって動作を変える
+                # if client_request == lib._header.CREATE_ROOM:
+                #     sock.sendto(data, client_address)
+                # elif client_request == lib._header.REQUEST_ROOM_LIST:
+                #     sock.sendto(data, client_address)
+                # elif client_request == lib._header.REQUEST_LOG_FILE:
+                #     sock.sendto(data, client_address)
+                # elif client_request == lib._header.ENTER_ROOM:
+                #     sock.sendto(data, client_address)
+                # elif client_request == lib._header.SEND_MESSAGE:
+                #     sock.sendto(data, client_address)
+                # elif client_request == lib._header.CLIENT_EXIT_MESSAGE:
+                #     sock.sendto(data, client_address)
+                # elif client_request == lib._header.EXIT_MESSAGE:
+                #     sock.sendto(data, client_address)
+                #     break
+            except Exception as e:
+                print("Error: " + str(e))
+                break
+    except KeyboardInterrupt:
+        pass
+    finally:
+        print("Closing current connection")
+        sock.close()
+
+def encode_message(message: str):
+    """
+        utf-8 の 
+        str -> byte へのエンコード
+    """
+    return message.encode("utf-8")
+
+
+
 
 if __name__ == "__main__":
+    broadcast_chatroom()
+    # print("hello")
 
     # startup_chat_room("room1", 5)
     # chat_room()
     # test_mes_udp()
 
     # test_chat_room()
-    main_tcp()
+    # main_tcp()
     
     # main_udp()
     # receive_udp_request_message()

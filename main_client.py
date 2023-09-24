@@ -165,7 +165,40 @@ def main_udp():
         print("shutdown main")
         sock.close()
 
+def chat_client():
+    
+    sock, address, port = startup_udp_client(CLIENT_ADDRESS)
+    # データ受信をサブスレッドで実行
+    thread = threading.Thread(target=recv_data, args=(sock, RECV_SIZE, ))
+    thread.start()
+    
+    # 起動時にヘッダを送信して、それに従って入室させればよろしい
+
+    # データ入力ループ
+    try:
+        while True:
+            data = input("> ")
+            if data == "exit":
+                send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, CLIENT_EXIT_MESSAGE)
+                break
+            if data == "server exit":
+                send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, EXIT_MESSAGE)
+                break
+            else:
+                try:
+                    send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, SEND_MESSAGE)
+                except ConnectionResetError:
+                    break
+                except Exception as e:
+                    print("Error: ", + str(e))
+                    break
+    finally:
+        print("shutdown main")
+        sock.close()
+
+
 if __name__ == "__main__":
+    chat_client()
     # main_tcp()
     # main_udp()
     # test_chat_room()
