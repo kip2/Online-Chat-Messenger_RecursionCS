@@ -186,7 +186,8 @@ def chat_client():
                 break
             else:
                 try:
-                    send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, SEND_MESSAGE)
+                    # send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, SEND_MESSAGE)
+                    send_enter_room_message(sock, SERVER_ADDRESS, SERVER_PORT,"room1")
                 except ConnectionResetError:
                     break
                 except Exception as e:
@@ -195,6 +196,16 @@ def chat_client():
     finally:
         print("shutdown main")
         sock.close()
+
+NAME = "client1"
+def create_enter_room_prefix(room_name):
+    return room_name + ":" + NAME
+
+def send_enter_room_message(sock, server_address, server_port, room_name):
+    message = create_enter_room_prefix(room_name)
+    send_udp_message(sock, server_address, server_port, message)
+    return
+    
 
 
 if __name__ == "__main__":

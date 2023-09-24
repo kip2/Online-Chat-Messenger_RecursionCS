@@ -1,6 +1,7 @@
 import socket
 from lib.port_scan import *
 from lib._address_config import *
+from lib._header import *
 
 class UDP_Server:
     def __init__(self):
@@ -45,6 +46,12 @@ def encode_message( message: str) -> str:
         str -> byte へのエンコード
     """
     return message.encode("utf-8")
+
+def decode_message(byte_data):
+    """
+        受信したメッセージ(byte)をデコードする
+    """
+    return byte_data.decode(CHARA_CODE)
 
 # ----- test 
 def test_udp_class():

@@ -170,12 +170,22 @@ class ChatRooms:
     def initialize(self):
         pass
 
-    def append_room(self, room: ChatRoom):
+    def has_chat_room(self, room_name:str) -> bool:
+        """
+            該当の名前のroomが存在するか確認する
+        """
+        if room_name in self.chat_rooms:
+            return True
+        return False
+
+    def append_room(self, room: ChatRoom) -> bool:
         """
             chatroomを登録する
         """
         if room.name not in self.chat_rooms:
             self.chat_rooms[room.name] = room
+            return True
+        return False
         
     def remove_room(self, room: ChatRoom):
         """
