@@ -1,4 +1,8 @@
 from lib.udp_server import * 
+from lib.json_tool import *
+
+# 保存パス
+ROOM_LIST_FILEPATH = "./json/room_list.json"
 
 # メッセージフォーマット用のspace
 MESSAGE_SPACE = 3
@@ -153,7 +157,15 @@ class ChatRooms:
 
     # 初期化処理
     def initialize(self):
+        self.deserialize_json_data()
         pass
+
+    def save_json_file(self):
+        """
+            room listをjsonデータに保存する
+        """
+        d = self.convert_json_data()
+        save_json(d, ROOM_LIST_FILEPATH)
 
     def convert_json_data(self):
         """
@@ -164,9 +176,14 @@ class ChatRooms:
             json_dict[room_name] = room.max_member
         return json_dict
     
-    def deserialize_json_data(self, json_dict: dict):
+    def deserialize_json_data(self):
+        """ 
+            jsonファイルからroom listを読み込む
+        """ 
+        d = load_json(ROOM_LIST_FILEPATH)
+        for room_name, max_member in d.items():
+            self.append_room(ChatRoom(room_name, max_member))
         pass
-
 
     def has_chat_room(self, room_name:str) -> bool:
         """

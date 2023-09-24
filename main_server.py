@@ -1,8 +1,8 @@
 import sys
-import ndjson
 from  lib.tcp_server import *
 from  lib.udp_server import *
 from lib.chat_room import *
+from lib.json_tool import *
 
 import lib
 
@@ -185,6 +185,11 @@ def test_conver_json_data():
     d = chat_rooms.convert_json_data()
     print(d)
 
+def test_json_save_data():
+    mock_rooms()
+    d = chat_rooms.convert_json_data()
+    chat_rooms.save_json_file()
+
     
 def test_rooms_append_room():
     mock_rooms()
@@ -200,7 +205,10 @@ def test_message_parsing():
     print(message)
     a, b = message
     print(a, b)
-    
+
+def test_deserialize_json():
+    chat_rooms.deserialize_json_data()
+
 if __name__ == "__main__":
 
     # test_message_parsing()
@@ -208,4 +216,8 @@ if __name__ == "__main__":
     # test_rooms_append_room()
     # broadcast_chatroom()
     # chatroom_server()
-    test_conver_json_data()
+    # test_conver_json_data()
+    # test_json_save_data()
+    # test_deserialize_json()
+    print("test")
+
