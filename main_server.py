@@ -1,6 +1,4 @@
-import socket
-import os
-import threading
+import sys
 import ndjson
 from  lib.tcp_server import *
 from  lib.udp_server import *
@@ -21,26 +19,6 @@ clients = []
 
 # chat room list
 chat_rooms = ChatRooms()
-
-def create_room():
-    client_socket = clients[0][0]
-
-    # 部屋の名前と人数を聞く
-    
-    
-    # 帰ってきた情報を受けて、roomを作成し、roomリストに追加する
-        # roomリストに追加
-        # 
-
-    # そちらで更新するように、headerに情報を加えて渡す
-        # header情報を変えるか？
-        # client側のheader解析情報が入りそう
-
-    client_socket.send(b"CREATE ROOM!\n")
-    client_socket.send(b"NEXT MESSAGE!")
-
-    # connection.close()
-    pass
 
 def header_parsing(header):
     """
@@ -375,56 +353,59 @@ def broadcast_chatroom():
 
                 a,p  = client_address
 
-                room_name, client_name = message_parsing(data)
-                client = ChatClient(client_name, a, p)
-
-                # roomの存在をチェック
-                if not chat_rooms.has_chat_room(room_name):
-                    err_message = "そのようなroomは存在しません"
-                    send_error_message(sock, client_address,err_message)
-                    continue
-
-                # roomを取得する
-                room = chat_rooms.get_room(room_name)
-
-                # clientがroomに存在すればbroadcast
-                if room.has_chat_client(client):
-                    message = "test broadcast"
-                    broadcast_chat_message(sock, room, client_name, message)
-                else:
-                    # そうでなければ入室処理
-                    if not room.enter_chat_room(client):
-                        # 例外処理
-                        err_message = "入室できませんでした"
-                        send_error_message(sock, client_address,  err_message)
+                # 入室処理のメッセージをparseする
+                parsed_message = message_parsing(data)
+                # todo: messageに:が入らないことはclient側で保証すること
+                # もしparseしたメッセージが2つなら入室メッセージ
+                if (len(parsed_message) == 2):
+                    room_name, client_name = parsed_message
+                    # roomの存在をチェック
+                    if not chat_rooms.has_chat_room(room_name):
+                        err_message = "そのようなroomは存在しません"
+                        send_error_message(sock, client_address,err_message)
                         continue
-                    else:
-                        # 入室できたならbroadcast
+
+                    # roomを取得する
+                    room = chat_rooms.get_room(room_name)
+
+                    # clientをインスタンス化
+                    client = ChatClient(client_name, a, p)
+                    
+                    # すでに入室しているなら
+                    if room.has_chat_client(client):
+                        message = "すでに入室しています"
+                        send_error_message(sock, client_address,err_message)
+                        continue
+
+                    # clientを入室させる
+                    room.enter_chat_room(client)
+
+                # もしparseしたメッセージが3つならチャットへのメッセージ
+                elif(len(parsed_message) == 3):
+                    # unpack message
+                    room_name, client_name, message = parsed_message
+
+                    # ルームが存在しない
+                    if not chat_rooms.has_chat_room(room_name):
+                        err_message = "そのようなroomは存在しません"
+                        send_error_message(sock, client_address,err_message)
+                        continue
+
+                    # roomを取得する
+                    room = chat_rooms.get_room(room_name)
+
+                    client = ChatClient(client_name, a, p)
+
+                    # clientがroomに存在すればbroadcast
+                    if room.has_chat_client(client):
                         message = "test broadcast"
                         broadcast_chat_message(sock, room, client_name, message)
-                        
+                    else:
+                        # todo: testまだ
+                        err_message = "入室していません"
+                        send_error_message(sock, client_address,  err_message)
+                        continue
 
-
-                # mes = "test message @ " + str(p)
-                
-                # room.udp_message_broadcast(sock, n, mes)
-
-                # # # headerの種類によって動作を変える
-                # if client_request == lib._header.CREATE_ROOM:
-                #     sock.sendto(data, client_address)
-                # elif client_request == lib._header.REQUEST_ROOM_LIST:
-                #     sock.sendto(data, client_address)
-                # elif client_request == lib._header.REQUEST_LOG_FILE:
-                #     sock.sendto(data, client_address)
-                # elif client_request == lib._header.ENTER_ROOM:
-                #     sock.sendto(data, client_address)
-                # elif client_request == lib._header.SEND_MESSAGE:
-                #     sock.sendto(data, client_address)
-                # elif client_request == lib._header.CLIENT_EXIT_MESSAGE:
-                #     sock.sendto(data, client_address)
-                # elif client_request == lib._header.EXIT_MESSAGE:
-                #     sock.sendto(data, client_address)
-                #     break
             except Exception as e:
                 print("Error: " + str(e))
                 break
@@ -432,12 +413,18 @@ def broadcast_chatroom():
         pass
     finally:
         print("Closing current connection")
-        sock.close()
+        server_exit(sock)
 
+def server_exit(sock):
+    sock.close()
+    sys.exit(0)
     
 def message_parsing(message):
     message = message.split(":")
-    return (message[0], message[1])
+    if (len(message) == 2):
+        return (message[0], message[1])
+    elif (len(message) == 3):
+        return (message[0], message[1], message[2])
 
 def mock_rooms():
     room = ChatRoom("mock_room1", 5)

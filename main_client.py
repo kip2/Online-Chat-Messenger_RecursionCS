@@ -34,7 +34,6 @@ def flush_display(log):
 
     
 def recv_data(sock, recv_size):
-    
     """
         データ受信用のthread
     """
@@ -60,37 +59,6 @@ def recv_data(sock, recv_size):
         print("shutdown helper.")
         sock.close()
 
-def test_chat_room():
-    with UDP_Client() as clt:
-        sock = clt.sock
-        thread = threading.Thread(target=recv_data, args=(sock, RECV_SIZE,))
-        thread.start()
-        
-        # header送信テスト中
-        # send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, CREATE_ROOM)
-
-        # データ入力ループ
-        while True:
-            data = input("> ")
-            if data == "exit":
-                send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, CLIENT_EXIT_MESSAGE)
-                break
-            if data == "se":
-                send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, EXIT_MESSAGE)
-                break
-            else:
-                try:
-                    # header送信
-                    # send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, SEND_MESSAGE)
-                    # messageの送信
-                    message = data
-                    send_udp_message(sock, SERVER_ADDRESS, SERVER_PORT, message)
-
-                except ConnectionResetError:
-                    break
-                except Exception as e:
-                    print("Error: ", + str(e))
-                    break
 
 def main_tcp():
     """
@@ -141,7 +109,6 @@ def test_multi_thread_tcp_client():
     thread5 = threading.Thread(target=main_tcp)
     thread5.start()
     
-
 def main_udp():
     """
         udp通信のmain関数
@@ -175,7 +142,7 @@ def main_udp():
                     break
     finally:
         print("shutdown main")
-        sock.close()
+        client_exit(sock)
 
 def chat_client():
     sock, address, port = startup_udp_client(CLIENT_ADDRESS)
@@ -183,9 +150,23 @@ def chat_client():
     thread = threading.Thread(target=recv_data, args=(sock, RECV_SIZE, ))
     thread.start()
     
-    # 起動時にヘッダを送信して、それに従って入室させればよろしい
+    # 入室処理用ループ
+    while True:
+        data = input("入室する部屋を選んでください")
+        if data == "exit":
+            client_exit(sock)
+        else:
+            try:
+                send_enter_room_message(sock, SERVER_ADDRESS, SERVER_PORT,"room1")
+                break
+            except ConnectionResetError:
+                client_exit(sock)
+            except Exception as e:
+                print("Error: ", + str(e))
+                client_exit(sock)
+                break
 
-    # データ入力ループ
+    # 入室後メッセージ入力ループ
     try:
         while True:
             data = input()
@@ -197,8 +178,7 @@ def chat_client():
                 break
             else:
                 try:
-                    # send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, SEND_MESSAGE)
-                    send_enter_room_message(sock, SERVER_ADDRESS, SERVER_PORT,"room1")
+                    send_chat_message(sock, SERVER_ADDRESS, SERVER_PORT, "room1", data )
                 except ConnectionResetError:
                     break
                 except Exception as e:
@@ -206,13 +186,40 @@ def chat_client():
                     break
     finally:
         print("shutdown main")
-        sock.close()
+        client_exit(sock)
+
+def client_exit(sock):
+    """
+        clientのsocketを閉じる処理
+    """
+    sock.close()
+    sys.exit(0)
 
 NAME = "client1"
+def create_chat_message_prefix(room_name, message):
+    """
+        chatメッセージ送信用のプレフィックス
+    """
+    return room_name + ":" + NAME + ":" + message
+
+def send_chat_message(sock, server_address, server_port, room_name, message):
+    """
+        chatメッセージを送信
+    """
+    message = create_chat_message_prefix(room_name, message)
+    send_udp_message(sock, server_address, server_port, message)
+    return
+
 def create_enter_room_prefix(room_name):
+    """
+        入室用メッセージのプレフィックスを作成する
+    """
     return room_name + ":" + NAME
 
 def send_enter_room_message(sock, server_address, server_port, room_name):
+    """
+        入室メッセージを送信する
+    """
     message = create_enter_room_prefix(room_name)
     send_udp_message(sock, server_address, server_port, message)
     return
