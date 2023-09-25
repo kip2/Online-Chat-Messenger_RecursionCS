@@ -58,6 +58,7 @@ class ChatRoom():
         # todo: validationがいる
         self.name: str = name
         self.max_member: int = max_member
+        self.create_log_file()
 
     # def __del__(self):
     #     """
