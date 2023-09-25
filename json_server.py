@@ -13,7 +13,7 @@ JSON_SERVER_PORT = lib._address_config.JSON_SERVER_PORT
 # json save directory
 JSON_DIRECTORY_PATH = "json"
 
-def send_json_server():
+def send_json_server(filepath):
     pass
 
 def recieve_json_server():
