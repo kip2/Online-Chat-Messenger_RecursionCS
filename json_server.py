@@ -34,6 +34,7 @@ def json_server():
                 # todo: 確認終われば消す
                 print(f'Received header from client. Byte lengths: Title length {filename_length}, JSON length {json_length}, Data Length {data_length}')
 
+                # todo: encodeのCHARACTER CODEを定数にする
                 filename = connection.recv(filename_length).decode("utf-8")
                 # todo: 確認終われば消す
                 print(f"Filename: {filename}")

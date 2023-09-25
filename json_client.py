@@ -1,4 +1,5 @@
 from lib.tcp_client import *
+import os
 
 import lib
 
@@ -21,8 +22,34 @@ def protocol_header(filename_length, json_length, data_length):
 
 def json_client():
     with TCP_Client(SERVER_ADDRESS, JSON_SERVER_PORT) as c:
-        pass
-    print("test")
+        # todo: 後でfilepathの受け渡しについて考慮すること
+        filepath = JSON_DIRECTORY_PATH + "/" +  "room_list.json"
+
+        with open(filepath, "rb") as f:
+            f.seek(0, os.SEEK_END)
+            filesize = f.tell()
+            f.seek(0,0)
+
+            if filesize > pow(2, 32):
+                raise Exception("File must be below 2GB.")
+
+            filename = os.path.basename(f.name)
+
+            # todo: encodeのCHARACTER CODEを定数にする
+            filename_bits = filename.encode("utf-8")
+
+            header = protocol_header(len(filename_bits), 0, filesize)
+
+            c.sock.send(header)
+            c.sock.send(filename_bits)
+
+            data = f.read(4096)
+            while data:
+                print("Sending...")
+                c.sock.send(data)
+                data = f.read(4096)
+    # todo: これも消す
+    print("Closing socket")
 
 if __name__ == "__main__":
     json_client()
