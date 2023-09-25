@@ -1,3 +1,4 @@
+import sys
 import socket
 from lib.port_scan import *
 from lib._address_config import *
@@ -52,6 +53,13 @@ def decode_message(byte_data):
         受信したメッセージ(byte)をデコードする
     """
     return byte_data.decode(CHARA_CODE)
+
+def server_exit(sock):
+    """
+        serverのソケット終了処理
+    """
+    sock.close()
+    sys.exit(0)
 
 # ----- test 
 def test_udp_class():

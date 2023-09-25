@@ -1,3 +1,4 @@
+import sys
 import socket
 from lib.port_scan import *
 from lib._address_config import *
@@ -36,6 +37,13 @@ def send_server_message(connection, message):
         connectionに、messageをutf-8にencodeして送るだけの関数
     """
     connection.send(message.encode(CHARA_CODE))
+
+def server_exit(sock):
+    """
+        serverのソケット終了処理
+    """
+    sock.close()
+    sys.exit(0)
 
 # ----- test case -----
 def test_tcp_class():

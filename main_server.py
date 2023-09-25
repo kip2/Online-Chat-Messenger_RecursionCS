@@ -25,29 +25,6 @@ def header_parsing(header):
     data_length = int.from_bytes(header[4:8], "big")
     return (client_request, message_length, data_length)
 
-# def broadcast_client(sock, addr):
-#     while True:
-#         try:
-#             data = sock.recv(4096)
-#             if data == b"":
-#                 break
-#             print("$ say client:{}".format(addr))
-#             # 受信データを全クライアントに送信
-#             for client in clients:
-#                 client[0].send(data)
-
-#         except ConnectionResetError:
-#             break
-#         except OSError as e:
-#             if e.errno == 57:
-#                 break
-#     # クライアントリストから削除
-#     clients.remove((sock,addr))
-#     print("- close client:{}".format(addr))
-
-#     sock.shutdown(socket.SHUT_WR)
-#     sock.close()
-
 def test_room_create():
     cr = ChatRoom("room1", 1)
     chat_rooms.append_room(cr)
@@ -148,11 +125,12 @@ def chatroom_server():
         print("Closing current connection")
         server_exit(sock)
 
-def server_exit(sock):
-    sock.close()
-    sys.exit(0)
     
 def message_parsing(message):
+    """
+        messageヘッダをparseする
+    """
+    # todo: split対象を™\n"に変える
     message = message.split(":")
     if (len(message) == 2):
         return (message[0], message[1])
@@ -180,7 +158,7 @@ def mock_member(room: ChatRoom):
     room.enter_chat_room(ChatClient("mock太郎"+str(10004), '127.0.0.1', 10004))
     return 
 
-def test_conver_json_data():
+def test_convert_json_data():
     mock_rooms()
     d = chat_rooms.convert_json_data()
     print(d)
