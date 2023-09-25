@@ -35,7 +35,7 @@ def recieve_json_server():
                 stream_rate = 4096
 
                 # todo: 確認終われば消す
-                print(f'Received header from client. Byte lengths: Title length {filename_length}, JSON length {json_length}, Data Length {data_length}')
+                print(f'Recieved header from client. Byte lengths: Title length {filename_length}, JSON length {json_length}, Data Length {data_length}')
 
                 # todo: encodeのCHARACTER CODEを定数にする
                 filename = connection.recv(filename_length).decode("utf-8")

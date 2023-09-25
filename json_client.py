@@ -20,7 +20,7 @@ JSON_DIRECTORY_PATH = "json"
 def protocol_header(filename_length, json_length, data_length):
     return filename_length.to_bytes(1, "big") + json_length.to_bytes(3,"big") + data_length.to_bytes(4,"big")
 
-def receive_json_client():
+def recieve_json_client():
     pass
 
 def send_json_client(filepath):
