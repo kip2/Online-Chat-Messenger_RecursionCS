@@ -17,14 +17,14 @@ CHAT_SERVER_PORT = lib._address_config.CHAT_SERVER_PORT
 # chat room list
 chat_rooms = ChatRooms()
 
-def header_parsing(header):
-    """
-        headerを解析する
-    """
-    client_request = int.from_bytes(header[:1], "big")
-    message_length = int.from_bytes(header[1:3], "big")
-    data_length = int.from_bytes(header[4:8], "big")
-    return (client_request, message_length, data_length)
+# def header_parsing(header):
+#     """
+#         headerを解析する
+#     """
+#     client_request = int.from_bytes(header[:1], "big")
+#     message_length = int.from_bytes(header[1:3], "big")
+#     data_length = int.from_bytes(header[4:8], "big")
+#     return (client_request, message_length, data_length)
 
 def test_room_create():
     cr = ChatRoom("room1", 1)

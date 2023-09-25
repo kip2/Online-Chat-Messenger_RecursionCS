@@ -1,12 +1,16 @@
 from lib.udp_server import * 
 from lib.json_tool import *
 import os
+import pathlib
 
 # json save directory
 JSON_DIRECTORY_PATH = "json"
 
 # 保存パス
 ROOM_LIST_FILEPATH = "./json/room_list.json"
+
+# logファイルの保存パス
+ROOM_LOG_PATH = "./json/room_log/"
 
 # メッセージフォーマット用のspace
 MESSAGE_SPACE = 3
@@ -39,9 +43,12 @@ class ChatRoom():
             name:       チャットルームの名前
             max_member:  チャットルームの最大参加人数
 
+            room_log:    roomのメッセージlog格納配列。右の形式 -> (name, message)
             client_list: 入室しているクライアント情報
             ljust_max:   チャットメッセージの文字列整形管理用
     """
+    # roomのメッセージログ
+    room_log = []
     # client HashMap
     client_list = {}
     # チャットメッセージ文字列整形用
@@ -111,6 +118,21 @@ class ChatRoom():
         """
         space = (self.ljust_max - len(name)) * " "
         return name + space + ":" + " " + message
+
+    def create_file_path(self):
+        """
+            roomのmessagelogのパスを返す
+        """
+        return ROOM_LOG_PATH + self.name + ".json"
+
+    def create_log_file(self):
+        """
+            roomのlogファイルを作成する
+        """
+        filepath = self.create_file_path()
+        if not os.path.exists(filepath):
+            touch_file = pathlib.Path(filepath)
+            touch_file.touch()
 
     def udp_message_broadcast(self, sock, name: str, message:str):
         """
@@ -385,9 +407,19 @@ def test_chat_room():
     room.exit_client(cl5)
     print(room.ljust_max)
     print("room name:", room.name, "room member:", [ x for x in room.client_list] )
+
+def test_room_log_path():
+    room1 = ChatRoom("room1", 5)
+    print(room1.create_file_path())
+
+def test_create_log_file():
+    room1 = ChatRoom("room1", 5)
+    room1.create_log_file()
     
 if __name__ == "__main__":
 
+    test_create_log_file()
+    # test_room_log_path()
     # test_singleton_class()
     
     # test_chatrooms_remove()
