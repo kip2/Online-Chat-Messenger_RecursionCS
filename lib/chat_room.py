@@ -43,7 +43,7 @@ class ChatRoom():
             name:       チャットルームの名前
             max_member:  チャットルームの最大参加人数
 
-            room_log:    roomのメッセージlog格納配列。右の形式 -> (name, message)
+            room_log:    roomのメッセージlog格納配列。右の形式 -> [name, message]
             client_list: 入室しているクライアント情報
             ljust_max:   チャットメッセージの文字列整形管理用
     """
@@ -115,7 +115,7 @@ class ChatRoom():
     
     def create_send_message(self, name: str, message: str) -> str:
         """
-            整形したメッセージ文章を送信
+            整形したメッセージ文章を作成
         """
         space = (self.ljust_max - len(name)) * " "
         return name + space + ":" + " " + message
@@ -142,10 +142,20 @@ class ChatRoom():
         filepath = self.create_file_path()
         os.remove(filepath)
 
+    def dump_message_log(self):
+        """
+            message logの配列をjsonファイルにダンプ
+        """
+        filepath = self.create_file_path()
+        save_arr_json(self.room_log , filepath)
+
     def udp_message_broadcast(self, sock, name: str, message:str):
         """
             roomのclientへのブロードキャスト
         """
+        # log配列に追加する
+        self.room_log.append([name, message])
+        # ブロードキャスト用メッセージ作成
         message = self.create_send_message(name, message)
         for client in self.client_list.values():
             send_udp_message(sock, client.get_address(), message)
@@ -264,7 +274,7 @@ class ChatRooms:
             room_list.append(k)
         return room_list
 
-    def create_room_log_directory():
+    def create_room_log_directory(self):
         """
             roomのlogファイルを作成する
         """
