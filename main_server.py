@@ -11,7 +11,7 @@ NETWORK_SOCKET_TYPE = lib._address_config.NETWORK_SOCKET_TYPE
 # server address
 SERVER_ADDRESS = lib._address_config.SERVER_ADDRESS 
 # server port
-SERVER_PORT = lib._address_config.SERVER_PORT
+CHAT_SERVER_PORT = lib._address_config.CHAT_SERVER_PORT
 
 # chat room list
 chat_rooms = ChatRooms()
@@ -39,9 +39,9 @@ def test_room_create():
     return 
 
 def chatroom_server():
-    print("Starting up udp on {} port {}".format(SERVER_ADDRESS, SERVER_PORT))
+    print("Starting up udp on {} port {}".format(SERVER_ADDRESS, CHAT_SERVER_PORT))
 
-    sock, addr, port = startup_udp_server(SERVER_ADDRESS, SERVER_PORT)
+    sock, addr, port = startup_udp_server(SERVER_ADDRESS, CHAT_SERVER_PORT)
     print(f"socket = {sock}, address = {addr}, port = {port}")
 
     # roomの作成

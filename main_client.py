@@ -72,7 +72,7 @@ def chat_client():
             client_exit(sock)
         else:
             try:
-                send_enter_room_message(sock, SERVER_ADDRESS, SERVER_PORT,"room1")
+                send_enter_room_message(sock, SERVER_ADDRESS, CHAT_SERVER_PORT,"room1")
                 break
             except ConnectionResetError:
                 client_exit(sock)
@@ -86,14 +86,14 @@ def chat_client():
         while True:
             data = input()
             if data == "exit":
-                send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, CLIENT_EXIT_MESSAGE)
+                send_udp_header(sock, SERVER_ADDRESS, CHAT_SERVER_PORT, CLIENT_EXIT_MESSAGE)
                 break
             if data == "server exit":
-                send_udp_header(sock, SERVER_ADDRESS, SERVER_PORT, EXIT_MESSAGE)
+                send_udp_header(sock, SERVER_ADDRESS, CHAT_SERVER_PORT, EXIT_MESSAGE)
                 break
             else:
                 try:
-                    send_chat_message(sock, SERVER_ADDRESS, SERVER_PORT, "room1", data )
+                    send_chat_message(sock, SERVER_ADDRESS, CHAT_SERVER_PORT, "room1", data )
                 except ConnectionResetError:
                     break
                 except Exception as e:

@@ -6,8 +6,8 @@ from lib._header import *
 
 
 class TCP_Server:
-    def __init__(self):
-        self.sock, self.addr, self.port = startup_tcp_server()
+    def __init__(self, port):
+        self.sock, self.addr, self.port = startup_tcp_server(server_port=port)
 
     def __enter__(self):
         return self
@@ -50,7 +50,7 @@ def test_tcp_class():
     sock, addr, port = startup_tcp_server()
     print(f"socket = {sock}, address = {addr}, port = {port}")
     sock.close()
-    with TCP_Server() as t:
+    with TCP_Server(CHAT_SERVER_PORT) as t:
         print("TCPのテスト")
         print(t)
     
