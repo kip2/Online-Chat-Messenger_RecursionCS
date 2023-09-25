@@ -135,6 +135,13 @@ class ChatRoom():
             touch_file = pathlib.Path(filepath)
             touch_file.touch()
 
+    def delete_log_file(self):
+        """
+            roomのlogファイルを削除する
+        """
+        filepath = self.create_file_path()
+        os.remove(filepath)
+
     def udp_message_broadcast(self, sock, name: str, message:str):
         """
             roomのclientへのブロードキャスト
@@ -185,6 +192,7 @@ class ChatRooms:
     # 初期化処理
     def initialize(self):
         self.deserialize_json_data()
+        self.create_room_log_directory()
         pass
 
     def save_json_file(self):
@@ -234,7 +242,9 @@ class ChatRooms:
             指定されたchatroomの登録を削除する
         """
         if room.name in self.chat_rooms:
-            del self.chat_rooms[room.name]
+            room = self.chat_rooms[room.name]
+            room.delete_log_file()
+            del room
 
     def get_room(self, room_name:str) -> ChatRoom:
         """
@@ -253,6 +263,13 @@ class ChatRooms:
         for k in self.chat_rooms.keys():
             room_list.append(k)
         return room_list
+
+    def create_room_log_directory():
+        """
+            roomのlogファイルを作成する
+        """
+        if not os.path.exists(ROOM_LOG_PATH):
+            os.makedirs(ROOM_LOG_PATH)
 
 def create_json_directory():
     """
