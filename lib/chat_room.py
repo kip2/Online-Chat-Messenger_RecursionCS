@@ -149,6 +149,13 @@ class ChatRoom():
         filepath = self.create_file_path()
         save_arr_json(self.room_log , filepath)
 
+    def load_message_log(self):
+        """
+            message logをjsonファイルからloadする
+        """
+        filepath = self.create_file_path()
+        self.room_log = load_json(filepath)
+
     def udp_message_broadcast(self, sock, name: str, message:str):
         """
             roomのclientへのブロードキャスト
