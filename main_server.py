@@ -13,6 +13,7 @@ SERVER_ADDRESS = lib._address_config.SERVER_ADDRESS
 # server port
 CHAT_SERVER_PORT = lib._address_config.CHAT_SERVER_PORT
 
+
 # chat room list
 chat_rooms = ChatRooms()
 
@@ -37,6 +38,7 @@ def test_room_create():
     cr = ChatRoom("room5", 5)
     chat_rooms.append_room(cr)
     return 
+
 
 def chatroom_server():
     print("Starting up udp on {} port {}".format(SERVER_ADDRESS, CHAT_SERVER_PORT))
@@ -124,7 +126,6 @@ def chatroom_server():
     finally:
         print("Closing current connection")
         server_exit(sock)
-
     
 def message_parsing(message):
     """
@@ -193,7 +194,7 @@ if __name__ == "__main__":
     # test_has_chat_room()
     # test_rooms_append_room()
     # broadcast_chatroom()
-    # chatroom_server()
+    chatroom_server()
     # test_conver_json_data()
     # test_json_save_data()
     # test_deserialize_json()

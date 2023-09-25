@@ -1,5 +1,9 @@
 from lib.udp_server import * 
 from lib.json_tool import *
+import os
+
+# json save directory
+JSON_DIRECTORY_PATH = "json"
 
 # 保存パス
 ROOM_LIST_FILEPATH = "./json/room_list.json"
@@ -226,6 +230,13 @@ class ChatRooms:
         for k in self.chat_rooms.keys():
             room_list.append(k)
         return room_list
+
+def create_json_directory():
+    """
+        json受け渡しをするjsonフォルダを作成する
+    """
+    if not os.path.exists(JSON_DIRECTORY_PATH):
+        os.makedirs(JSON_DIRECTORY_PATH)
 
 def chat_room_create(room_name: str, max_member: int):
     """

@@ -1,6 +1,5 @@
 import json
 
-
 def save_json(dic: dict, filepath: str) -> None:
     with open(filepath, "w") as f:
         json.dump(dic, f)
