@@ -21,6 +21,9 @@ HEADER_SIZE = JSON_HEADER_SIZE
 
 
 def send_json_server(filepath):
+    """
+        filepathのjsonファイルを送信する
+    """
     with TCP_Server(JSON_SERVER_PORT) as s:
         connection, client_address = s.sock.accept()
 
@@ -62,13 +65,7 @@ def recieve_json_server():
 
             stream_rate = 4096
 
-            # todo: 確認終われば消す
-            print(f'Recieved header from client. Byte lengths: Title length {filename_length}, JSON length {json_length}, Data Length {data_length}')
-
-            # todo: encodeのCHARACTER CODEを定数にする
             filename = connection.recv(filename_length).decode(CHARA_CODE)
-            # todo: 確認終われば消す
-            print(f"Filename: {filename}")
 
             if json_length != 0:
                 raise Exception("JSON data is not currently supported.")

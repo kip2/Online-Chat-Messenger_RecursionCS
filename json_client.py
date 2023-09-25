@@ -16,9 +16,9 @@ SERVER_ADDRESS = lib._address_config.SERVER_ADDRESS
 JSON_SERVER_PORT = lib._address_config.JSON_SERVER_PORT
 
 # json save directory
-# JSON_DIRECTORY_PATH = "json"
+JSON_DIRECTORY_PATH = "json"
 # todo: recieve test用
-JSON_DIRECTORY_PATH = "temp"
+# JSON_DIRECTORY_PATH = "temp"
 
 # header size
 HEADER_SIZE = JSON_HEADER_SIZE
@@ -33,13 +33,7 @@ def recieve_json_client():
             filename_length, json_length, data_length = json_header_parsing(header)
             stream_rate = 4096
 
-            # todo: encodeのCHARACTER CODEを定数にする
             filename = c.sock.recv(filename_length).decode(CHARA_CODE)
-            # todo: 確認終われば消す
-            print(f"Filename: {filename}")
-
-            # todo: 確認終われば消す
-            print(f'Recieved header from client. Byte lengths: Title length {filename_length}, JSON length {json_length}, Data Length {data_length}')
 
             if json_length != 0:
                 raise Exception("JSON data is not currently supported.")
@@ -58,8 +52,6 @@ def recieve_json_client():
             print("Finished downloading the file from client.")
         except Exception as e:
             print("Error: " + str(e))
-    # todo: これも消す
-    print("Closing socket")
 
 def send_json_client(filepath):
     with TCP_Client(SERVER_ADDRESS, JSON_SERVER_PORT) as c:
