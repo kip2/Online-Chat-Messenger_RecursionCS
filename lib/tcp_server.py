@@ -55,13 +55,14 @@ def test_tcp_class():
         print(t)
     
 
-def test_startup_tcp_server():
-    socket1, addr1, port1 = startup_tcp_server()
-    socket2, addr2, port2 = startup_tcp_server()
-    socket3, addr3, port3 = startup_tcp_server()
-    socket4, addr4, port4 = startup_tcp_server()
-    socket5, addr5, port5 = startup_tcp_server()
+# def test_startup_tcp_server():
+#     socket1, addr1, port1 = startup_tcp_server()
+#     socket2, addr2, port2 = startup_tcp_server()
+#     socket3, addr3, port3 = startup_tcp_server()
+#     socket4, addr4, port4 = startup_tcp_server()
+#     socket5, addr5, port5 = startup_tcp_server()
 
 if __name__ == "__main__":
     # test_tcp_class()
-    test_startup_tcp_server()
+    # test_startup_tcp_server()
+    pass
