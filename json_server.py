@@ -13,7 +13,10 @@ JSON_SERVER_PORT = lib._address_config.JSON_SERVER_PORT
 # json save directory
 JSON_DIRECTORY_PATH = "json"
 
-def json_server():
+def send_json_server():
+    pass
+
+def recieve_json_server():
     with TCP_Server(JSON_SERVER_PORT) as s:
         sock, addr, port = s.sock, s.addr, s.port
 
@@ -68,5 +71,5 @@ def create_json_directory():
 
 if __name__ == "__main__":
     print("Hello")
-    json_server()
+    recieve_json_server()
     pass
