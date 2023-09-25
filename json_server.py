@@ -10,6 +10,8 @@ SERVER_ADDRESS = lib._address_config.SERVER_ADDRESS
 # server port
 JSON_SERVER_PORT = lib._address_config.JSON_SERVER_PORT
 
+# json save directory
+JSON_DIRECTORY_PATH = "json"
 
 def json_server():
     with TCP_Server(JSON_SERVER_PORT) as s:
@@ -24,9 +26,8 @@ def create_temp_directory():
     """
         json受け渡しをするtempフォルダを作成する
     """
-    dpath = "temp"
-    if not os.path.exists(dpath):
-        os.makedirs(dpath)
+    if not os.path.exists(JSON_DIRECTORY_PATH):
+        os.makedirs(JSON_DIRECTORY_PATH)
 
 if __name__ == "__main__":
     print("Hello")
