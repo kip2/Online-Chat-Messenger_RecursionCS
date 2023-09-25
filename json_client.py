@@ -1,7 +1,8 @@
-from lib.tcp_client import *
 import os
 
 import lib
+from lib.tcp_client import *
+from lib._header import *
 
 # todo: test用後で消す
 # from lib.tcp_server import *
@@ -15,13 +16,50 @@ SERVER_ADDRESS = lib._address_config.SERVER_ADDRESS
 JSON_SERVER_PORT = lib._address_config.JSON_SERVER_PORT
 
 # json save directory
-JSON_DIRECTORY_PATH = "json"
+# JSON_DIRECTORY_PATH = "json"
+# todo: recieve test用
+JSON_DIRECTORY_PATH = "temp"
 
-def protocol_header(filename_length, json_length, data_length):
-    return filename_length.to_bytes(1, "big") + json_length.to_bytes(3,"big") + data_length.to_bytes(4,"big")
+# header size
+HEADER_SIZE = JSON_HEADER_SIZE
+
 
 def recieve_json_client():
-    pass
+    with TCP_Client(SERVER_ADDRESS, JSON_SERVER_PORT) as c:
+        try:
+            header = c.sock.recv(HEADER_SIZE)
+
+            # header のパース
+            filename_length, json_length, data_length = json_header_parsing(header)
+            stream_rate = 4096
+
+            # todo: encodeのCHARACTER CODEを定数にする
+            filename = c.sock.recv(filename_length).decode(CHARA_CODE)
+            # todo: 確認終われば消す
+            print(f"Filename: {filename}")
+
+            # todo: 確認終われば消す
+            print(f'Recieved header from client. Byte lengths: Title length {filename_length}, JSON length {json_length}, Data Length {data_length}')
+
+            if json_length != 0:
+                raise Exception("JSON data is not currently supported.")
+            if data_length == 0:
+                raise Exception("No data to read from client.")
+
+            with open(os.path.join(JSON_DIRECTORY_PATH, filename), "wb+") as f:
+
+                while data_length > 0:
+                    data = c.sock.recv(data_length if data_length <= stream_rate else stream_rate)
+                    f.write(data)
+                    print(f"recieved {len(data)} bytes")
+                    data_length -= len(data)
+                    print(data_length)
+
+            print("Finished downloading the file from client.")
+        except Exception as e:
+            print("Error: " + str(e))
+    # todo: これも消す
+    print("Closing socket")
 
 def send_json_client(filepath):
     with TCP_Client(SERVER_ADDRESS, JSON_SERVER_PORT) as c:
@@ -36,10 +74,9 @@ def send_json_client(filepath):
 
             filename = os.path.basename(f.name)
 
-            # todo: encodeのCHARACTER CODEを定数にする
-            filename_bits = filename.encode("utf-8")
+            filename_bits = filename.encode(CHARA_CODE)
 
-            header = protocol_header(len(filename_bits), 0, filesize)
+            header = create_send_json_header(len(filename_bits), 0, filesize)
 
             c.sock.send(header)
             c.sock.send(filename_bits)
@@ -49,10 +86,10 @@ def send_json_client(filepath):
                 print("Sending...")
                 c.sock.send(data)
                 data = f.read(4096)
-    # todo: これも消す
-    print("Closing socket")
 
 if __name__ == "__main__":
-    filepath = JSON_DIRECTORY_PATH + "/" +  "room_list.json"
-    send_json_client(filepath)
+    # filepath = JSON_DIRECTORY_PATH + "/" +  "room_list.json"
+    # send_json_client(filepath)
+    recieve_json_client()
     pass
+
