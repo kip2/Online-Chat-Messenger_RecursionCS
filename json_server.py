@@ -41,7 +41,7 @@ def json_server():
 
                 if json_length != 0:
                     raise Exception("JSON data is not currently supported.")
-                if json_length == 0:
+                if data_length == 0:
                     raise Exception("No data to read from client.")
 
                 with open(os.path.join(JSON_DIRECTORY_PATH, filename), "wb+") as f:

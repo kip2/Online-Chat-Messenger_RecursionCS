@@ -4,8 +4,8 @@ import os
 import lib
 
 # todo: test用後で消す
-from lib.tcp_server import *
-sever = TCP_Server(JSON_SERVER_PORT)
+# from lib.tcp_server import *
+# sever = TCP_Server(JSON_SERVER_PORT)
 
 # network socket type
 NETWORK_SOCKET_TYPE = lib._address_config.NETWORK_SOCKET_TYPE 
