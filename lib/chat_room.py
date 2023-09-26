@@ -48,6 +48,7 @@ class ChatRoom():
             ljust_max:   チャットメッセージの文字列整形管理用
     """
     # roomのメッセージログ
+    # todo: dumpするタイミングを図る必要がある。roomのメッセージログを求められた時にしたら良いかも？
     room_log = []
     # client HashMap
     client_list = {}
@@ -162,6 +163,8 @@ class ChatRoom():
         """
         # log配列に追加する
         self.room_log.append([name, message])
+        # ファイルに保存する
+        self.dump_message_log()
         # ブロードキャスト用メッセージ作成
         message = self.create_send_message(name, message)
         for client in self.client_list.values():
