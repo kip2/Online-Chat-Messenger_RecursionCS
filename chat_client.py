@@ -16,14 +16,14 @@ def get_room_list() -> dict:
         return d
     return None
 
-def create_json_directory():
+def create_json_directory() -> None:
     """
         json受け渡しをするjsonフォルダを作成する
     """
     if not os.path.exists(JSON_DIRECTORY_PATH):
         os.makedirs(JSON_DIRECTORY_PATH)
 
-def print_room_list(room_list):
+def print_room_list(room_list: dict) -> None:
     print("----------------------------------")
     print("----------room list---------------")
     print("-- 部屋名 ---------- 参加可能人数 -")
@@ -35,11 +35,51 @@ def print_room_list(room_list):
         print(k, space, v, end=" ")
         print("|")
     print("----------------------------------")
-    print("----------room list---------------")
-    print("----------------------------------")
+    print()
 
-def select_enter_room():
+def room_exists(room: str, room_list: dict) -> bool:
+    """
+        roomの一覧に部屋が存在するかを確認
+    """
+    for room_name in room_list.keys():
+        if room == room_name: return True
+    return False
+
+
+def select_enter_room(room_list: dict) -> str:
+    """
+        入室する処理を行う
+    """
+    # エラーメッセージ
+    err_message = "!!そのような名前の部屋はありません!!"
+    # エラーメッセージ用フラグ
+    err_flg = False
+
+    while True:
+        # roomの一覧を表示する
+        print_room_list(room_list)
+        if err_flg: print(err_message)
+
+        room = input("入室する部屋を選んでください : ")
+        if room_exists(room, room_list): break
+        else: err_flg = True
+
+    # 選択した部屋の名前
+    return room
+
+def enter_room(room: str):
+    """ 
+        入室処理を行う関数
+    """ 
     pass
+
+def request_room_message_log(room):
+    pass
+
+# todo
+def request_room_list():
+    pass
+
 
 def chat_client():
 
@@ -50,11 +90,14 @@ def chat_client():
     if room_list == None:
         # todo: ない場合の処理はまだ
         # todo: room作成の処理に写ってよいと思う
+        request_room_list()
         pass
 
-    print_room_list(room_list)
+    # 入る部屋を選択する
+    room = select_enter_room(room_list)
 
-    select_enter_room()
+    # 部屋のログを取得する
+    log = request_room_message_log(room)
 
 
 if __name__ == "__main__":
