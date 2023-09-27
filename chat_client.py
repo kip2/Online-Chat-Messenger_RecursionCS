@@ -31,11 +31,22 @@ def print_room_list(room_list: dict) -> None:
     for k, v in room_list.items():
         print("|", end=" ")
         # print("部屋名:", k, " 参加可能人数:", v, end="")
+        # 部屋の人数が規定人数であれば"full"と表示する
+        if is_full_member(v): k += " full!"
+        # 文字レイアウト整形用
         space = " " * (27 - len(k))
-        print(k, space, v, end=" ")
+        print(k, space, v[0], end=" ")
         print("|")
     print("----------------------------------")
     print()
+
+def is_full_member(members: tuple) -> bool:
+    """
+        人数が規定人数に達しているかを判定
+    """
+    if members[0] == members[1] :return True
+    return False
+
 
 def room_exists(room: str, room_list: dict) -> bool:
     """
@@ -51,28 +62,50 @@ def select_enter_room(room_list: dict) -> str:
         入室する処理を行う
     """
     # エラーメッセージ
-    err_message = "!!そのような名前の部屋はありません!!"
-    # エラーメッセージ用フラグ
-    err_flg = False
+    err_message = ""
 
     while True:
         # roomの一覧を表示する
         print_room_list(room_list)
-        if err_flg: print(err_message)
+        if err_message != "": print(err_message)
 
         room = input("入室する部屋を選んでください : ")
-        if room_exists(room, room_list): break
-        else: err_flg = True
 
-    # 選択した部屋の名前
+        # リストにない名前を選択した場合
+        if not room_exists(room, room_list): 
+            err_message = "   そのような部屋は存在していません   "
+            continue
+        
+        # 選択した部屋の人数が最大の場合
+        if is_full_member(room_list[room]):
+            err_message = "   人数がいっぱいで入れません  "
+            continue
+
+        # そうでなければ入室OK
+        break
+    # 選択した部屋の名前を返す
     return room
 
-def enter_room(room: str):
+def enter_room(room: str) -> bool:
     """ 
         入室処理を行う関数
     """ 
+    # tcpclientを作成する
+
+    # 入室する旨を知らせる
+        # headerがいる
+        # 入室処理は別のファイルで作成してなかった？
+    
+    # 入室NGの場合
+    # 人数オーバー
+    return False
+
+    # 入室OKの場合
+    return True
+    
     pass
 
+# todo
 def request_room_message_log(room):
     pass
 
@@ -96,9 +129,22 @@ def chat_client():
     # 入る部屋を選択する
     room = select_enter_room(room_list)
 
+    # 入室処理をループする
+    while True:
+        # 入室できたらループを抜ける
+        if enter_room(room): break
+        # 入室失敗なら別の部屋を選択する
+        else: room = select_enter_room(room_list)
+
     # 部屋のログを取得する
     log = request_room_message_log(room)
+
+def test_print_room_list():
+    # room listの取得
+    room_list = get_room_list() 
+    print_room_list(room_list)
 
 
 if __name__ == "__main__":
     chat_client()
+    # test_print_room_list()

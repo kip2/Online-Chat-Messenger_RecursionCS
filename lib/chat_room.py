@@ -45,6 +45,7 @@ class ChatRoom():
 
             room_log:    roomのメッセージlog格納配列。右の形式 -> [name, message]
             client_list: 入室しているクライアント情報
+            number_of_people: 部屋に入室している人数
             ljust_max:   チャットメッセージの文字列整形管理用
     """
     # roomのメッセージログ
@@ -52,6 +53,8 @@ class ChatRoom():
     room_log = []
     # client HashMap
     client_list = {}
+    # 現在入室している人数
+    number_of_people = 0
     # チャットメッセージ文字列整形用
     ljust_max = 0
     
@@ -102,7 +105,7 @@ class ChatRoom():
 
     def enter_chat_room(self, chat_client: ChatClient) -> bool:
         """
-            roomに初めて入室したクライエントを登録する
+            入室したクライエントを登録する
         """
         if self.max_member <= len(self.client_list):
             return False
@@ -111,6 +114,8 @@ class ChatRoom():
             self.generate_message_format(chat_client.name)
             # クライアントを登録する
             self.client_list[chat_client.name] = chat_client
+            # 部屋人数を増やす
+            self.number_of_people += 1
             return True
         return False
     
@@ -175,6 +180,8 @@ class ChatRoom():
             chat roomからclientを退室させる処理
         """
         self.regenerate_message_format()
+        # member数を減らす
+        self.number_of_people -= 1
         del self.client_list[chat_client.name]
 
     def generate_message_format(self, client_name: str):
@@ -228,7 +235,7 @@ class ChatRooms:
         """
         json_dict = {}
         for room_name, room in self.chat_rooms.items():
-            json_dict[room_name] = room.max_member
+            json_dict[room_name] = (room.max_member, room.number_of_people)
         return json_dict
     
     def deserialize_json_data(self):
@@ -237,7 +244,7 @@ class ChatRooms:
         """ 
         d = load_json(ROOM_LIST_FILEPATH)
         for room_name, max_member in d.items():
-            self.append_room(ChatRoom(room_name, max_member))
+            self.append_room(ChatRoom(room_name, max_member[0]))
         pass
 
     def has_chat_room(self, room_name:str) -> bool:
@@ -453,10 +460,15 @@ def test_room_log_path():
 def test_create_log_file():
     room1 = ChatRoom("room1", 5)
     room1.create_log_file()
+
+def test_chat_room_list():
+    chat_rooms = ChatRooms()
+    chat_rooms.save_json_file()
     
 if __name__ == "__main__":
 
-    test_create_log_file()
+    test_chat_room_list()
+    # test_create_log_file()
     # test_room_log_path()
     # test_singleton_class()
     
