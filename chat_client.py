@@ -1,6 +1,7 @@
 import os
 from lib.udp_client import * 
 from lib.json_tool import *
+from lib.json_client import *
 
 import lib
 
@@ -14,6 +15,9 @@ def get_room_list() -> dict:
     if os.path.exists(ROOM_LIST_PATH):
         d = load_json(ROOM_LIST_PATH)
         return d
+    else: 
+        # todo: 関数内部の実装まだ
+        request_room_list()
     return None
 
 def create_json_directory() -> None:
@@ -73,12 +77,12 @@ def select_enter_room(room_list: dict) -> str:
 
         # リストにない名前を選択した場合
         if not room_exists(room, room_list): 
-            err_message = "   そのような部屋は存在していません   "
+            err_message = "error: そのような部屋は存在していません   "
             continue
         
         # 選択した部屋の人数が最大の場合
         if is_full_member(room_list[room]):
-            err_message = "   人数がいっぱいで入れません  "
+            err_message = "error: 人がいっぱいで入れません  "
             continue
 
         # そうでなければ入室OK
@@ -123,6 +127,7 @@ def chat_client():
     if room_list == None:
         # todo: ない場合の処理はまだ
         # todo: room作成の処理に写ってよいと思う
+        # todo: room作成後にroom_listを取得する処理いる
         request_room_list()
         pass
 
@@ -137,6 +142,7 @@ def chat_client():
         else: room = select_enter_room(room_list)
 
     # 部屋のログを取得する
+    # todo
     log = request_room_message_log(room)
 
 def test_print_room_list():
