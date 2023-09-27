@@ -23,7 +23,6 @@ JSON_DIRECTORY_PATH = "json"
 # header size
 HEADER_SIZE = JSON_HEADER_SIZE
 
-
 def recieve_json_client():
     with TCP_Client(SERVER_ADDRESS, JSON_SERVER_PORT) as c:
         try:
